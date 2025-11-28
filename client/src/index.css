@@ -1,0 +1,310 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ========== CSS Variables ========== */
+:root {
+  /* Brand Colors - Same for both themes */
+  --color-primary: #00E3A5;
+  --color-primary-hover: #1AFFBB;
+  --color-secondary: #4FC3F7;
+  --color-accent-glow: #00FFC6;
+}
+
+/* Dark Theme Variables */
+.dark {
+  --color-bg: #0D0D0D;
+  --color-surface: #161616;
+  --color-surface-hover: #1F1F1F;
+  --color-border: #262626;
+  --color-text: #FFFFFF;
+  --color-text-secondary: #A1A1A1;
+  --color-text-muted: #6B7280;
+}
+
+/* Light Theme Variables */
+.light {
+  --color-bg: #F5F5F5;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #E8E8E8;
+  --color-border: #D1D5DB;
+  --color-text: #111827;
+  --color-text-secondary: #4B5563;
+  --color-text-muted: #9CA3AF;
+}
+
+/* ========== Base Styles ========== */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ========== Scrollbar ========== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* ========== Utility Classes ========== */
+.container-custom {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* ========== Component: Buttons ========== */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #0D0D0D;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 0 20px rgba(0, 227, 165, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-primary);
+}
+
+/* ========== Component: Cards ========== */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.3s;
+}
+
+.card-hover:hover {
+  border-color: rgba(0, 227, 165, 0.3);
+  box-shadow: 0 0 20px rgba(0, 227, 165, 0.15);
+}
+
+/* ========== Component: Inputs ========== */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  color: var(--color-text);
+  transition: all 0.2s;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 227, 165, 0.2);
+}
+
+/* ========== Component: Glass Effect ========== */
+.glass {
+  background-color: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
+}
+
+/* ========== Text Styles ========== */
+.text-gradient {
+  background: linear-gradient(to right, var(--color-primary), var(--color-accent-glow), var(--color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-primary {
+  color: var(--color-text);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* ========== Background Classes ========== */
+.bg-dark-bg {
+  background-color: var(--color-bg);
+}
+
+.bg-dark-surface {
+  background-color: var(--color-surface);
+}
+
+.bg-dark-hover {
+  background-color: var(--color-surface-hover);
+}
+
+/* ========== Border Classes ========== */
+.border-dark-border {
+  border-color: var(--color-border);
+}
+
+/* ========== Text Color Classes ========== */
+.text-text-primary {
+  color: var(--color-text);
+}
+
+.text-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-text-muted {
+  color: var(--color-text-muted);
+}
+
+/* ========== Component: Badges ========== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background-color: rgba(0, 227, 165, 0.1);
+  color: var(--color-primary);
+}
+
+.badge-secondary {
+  background-color: rgba(79, 195, 247, 0.1);
+  color: var(--color-secondary);
+}
+
+/* ========== Animations ========== */
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(0, 227, 165, 0.2); }
+  100% { box-shadow: 0 0 20px rgba(0, 227, 165, 0.6); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* ========== Shadow Classes ========== */
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(0, 227, 165, 0.3);
+}
+
+.shadow-glow-lg {
+  box-shadow: 0 0 40px rgba(0, 227, 165, 0.4);
+}
+
+/* ========== Primary Color Utility ========== */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-primary\/10 {
+  background-color: rgba(0, 227, 165, 0.1);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.border-primary\/30 {
+  border-color: rgba(0, 227, 165, 0.3);
+}
+
+.border-primary\/50 {
+  border-color: rgba(0, 227, 165, 0.5);
+}
+
+/* ========== Hover States ========== */
+.hover\:bg-dark-hover:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.hover\:bg-dark-surface:hover {
+  background-color: var(--color-surface);
+}
+
+.hover\:border-primary\/50:hover {
+  border-color: rgba(0, 227, 165, 0.5);
+}
+
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+
+.hover\:text-text-primary:hover {
+  color: var(--color-text);
+}
+
+/* ========== Focus States ========== */
+.focus\:border-primary:focus {
+  border-color: var(--color-primary);
+}
+
+.focus\:ring-primary\/50:focus {
+  --tw-ring-color: rgba(0, 227, 165, 0.5);
+}
