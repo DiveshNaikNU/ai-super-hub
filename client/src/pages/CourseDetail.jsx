@@ -4,7 +4,7 @@ import {
   BookOpen, Clock, Users, Star, Play, CheckCircle,
   Lock, ChevronDown, ChevronUp, Loader2, ArrowLeft,
   GraduationCap, Award, FileText, HelpCircle, X,
-  ChevronLeft, ChevronRight, Trophy, RefreshCw
+  ChevronLeft, ChevronRight, Trophy, RefreshCw, Download
 } from 'lucide-react';
 import { coursesAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 export default function CourseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   
   const [course, setCourse] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
@@ -33,6 +33,9 @@ export default function CourseDetail() {
   const [quizResult, setQuizResult] = useState(null);
   const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  
+  // Certificate State
+  const [showCertificate, setShowCertificate] = useState(false);
 
   useEffect(() => {
     loadCourse();
@@ -182,6 +185,79 @@ export default function CourseDetail() {
     if (!url) return null;
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
     return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+  };
+
+  // Download certificate as image
+  const downloadCertificate = async () => {
+    const certificate = document.getElementById('certificate');
+    if (!certificate) return;
+
+    try {
+      // Use html2canvas if available, otherwise use a simple approach
+      if (window.html2canvas) {
+        const canvas = await window.html2canvas(certificate, {
+          backgroundColor: '#0D0D0D',
+          scale: 2
+        });
+        const link = document.createElement('a');
+        link.download = `${course?.title?.replace(/[^a-zA-Z0-9]/g, '_')}_Certificate.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } else {
+        // Fallback: Print the certificate
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Certificate - ${course?.title}</title>
+              <style>
+                body { 
+                  margin: 0; 
+                  padding: 20px;
+                  background: #0D0D0D;
+                  font-family: Georgia, serif;
+                }
+                .certificate {
+                  max-width: 800px;
+                  margin: 0 auto;
+                  padding: 40px;
+                  background: linear-gradient(135deg, #0D0D0D 0%, #1a1a2e 50%, #0D0D0D 100%);
+                  border: 2px solid rgba(0,227,165,0.3);
+                  border-radius: 8px;
+                  text-align: center;
+                  color: white;
+                }
+                .logo { color: #00E3A5; font-size: 24px; margin-bottom: 20px; }
+                .title { font-size: 32px; margin: 10px 0; }
+                .name { color: #00E3A5; font-size: 28px; margin: 20px 0; }
+                .course { font-size: 22px; margin: 20px 0; }
+                .score { color: #00E3A5; margin: 20px 0; }
+                .date { color: #888; font-size: 14px; }
+              </style>
+            </head>
+            <body>
+              <div class="certificate">
+                <div class="logo">🎓 AI Super Hub</div>
+                <div class="title">Certificate of Completion</div>
+                <p>This is to certify that</p>
+                <div class="name">${user?.name || 'Student'}</div>
+                <p>has successfully completed the course</p>
+                <div class="course">${course?.title}</div>
+                <div class="score">Quiz Score: ${quizResult?.percentage || enrollment?.bestQuizScore || 0}%</div>
+                <div class="date">Completed on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                <p style="font-size: 10px; margin-top: 20px;">Certificate ID: ${enrollment?._id?.slice(-8).toUpperCase() || 'XXXXXXXX'}</p>
+              </div>
+              <script>window.print(); window.close();</script>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      }
+      toast.success('Certificate downloaded!');
+    } catch (error) {
+      console.error('Failed to download certificate:', error);
+      toast.error('Failed to download certificate');
+    }
   };
 
   if (isLoading) {
@@ -355,6 +431,18 @@ export default function CourseDetail() {
                           </span>
                         </div>
                       </div>
+                    )}
+
+                    {/* Certificate Button - Show if passed quiz */}
+                    {enrollment?.bestQuizScore >= 70 && (
+                      <Button 
+                        className="w-full mt-3" 
+                        variant="secondary"
+                        onClick={() => setShowCertificate(true)}
+                      >
+                        <Award className="w-5 h-5" />
+                        View Certificate
+                      </Button>
                     )}
                   </>
                 ) : (
@@ -806,6 +894,12 @@ export default function CourseDetail() {
                     <Button variant="secondary" onClick={() => setShowQuiz(false)}>
                       Back to Course
                     </Button>
+                    {quizResult.passed && (
+                      <Button onClick={() => setShowCertificate(true)}>
+                        <Award className="w-4 h-4" />
+                        View Certificate
+                      </Button>
+                    )}
                     {!quizResult.passed && (
                       <Button onClick={startQuiz}>
                         <RefreshCw className="w-4 h-4" />
@@ -927,6 +1021,137 @@ export default function CourseDetail() {
                   </div>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================ */}
+      {/* CERTIFICATE MODAL */}
+      {/* ============================================ */}
+      {showCertificate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 overflow-y-auto">
+          <div 
+            className="relative w-full max-w-4xl rounded-xl overflow-hidden my-8"
+            style={{ backgroundColor: 'var(--color-surface)' }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowCertificate(false)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+              style={{ color: 'white' }}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Certificate Design */}
+            <div 
+              id="certificate"
+              className="relative p-6 md:p-10"
+              style={{ 
+                background: 'linear-gradient(135deg, #0D0D0D 0%, #1a1a2e 50%, #0D0D0D 100%)'
+              }}
+            >
+              {/* Decorative Border */}
+              <div 
+                className="absolute inset-3 rounded-lg pointer-events-none"
+                style={{ 
+                  border: '2px solid rgba(0,227,165,0.3)',
+                  background: 'transparent'
+                }}
+              />
+              
+              {/* Corner Decorations */}
+              <div className="absolute top-6 left-6 w-12 h-12 border-t-2 border-l-2" style={{ borderColor: 'var(--color-primary)' }} />
+              <div className="absolute top-6 right-6 w-12 h-12 border-t-2 border-r-2" style={{ borderColor: 'var(--color-primary)' }} />
+              <div className="absolute bottom-6 left-6 w-12 h-12 border-b-2 border-l-2" style={{ borderColor: 'var(--color-primary)' }} />
+              <div className="absolute bottom-6 right-6 w-12 h-12 border-b-2 border-r-2" style={{ borderColor: 'var(--color-primary)' }} />
+
+              {/* Content */}
+              <div className="relative text-center py-6">
+                {/* Logo */}
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg, #00E3A5, #00D1FF)' }}
+                  >
+                    <GraduationCap className="w-5 h-5 text-black" />
+                  </div>
+                  <span className="text-lg font-bold" style={{ color: 'var(--color-primary)' }}>
+                    AI Super Hub
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h1 
+                  className="text-2xl md:text-3xl font-serif mb-2"
+                  style={{ color: 'var(--color-text)', fontFamily: 'Georgia, serif' }}
+                >
+                  Certificate of Completion
+                </h1>
+                
+                <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>This is to certify that</p>
+
+                {/* User Name */}
+                <h2 
+                  className="text-xl md:text-2xl font-bold my-3"
+                  style={{ 
+                    color: 'var(--color-primary)',
+                    textShadow: '0 0 20px rgba(0,227,165,0.3)'
+                  }}
+                >
+                  {user?.name || 'Student'}
+                </h2>
+
+                <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>has successfully completed the course</p>
+
+                {/* Course Name */}
+                <h3 
+                  className="text-lg md:text-xl font-semibold my-3"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {course?.title}
+                </h3>
+
+                {/* Score */}
+                <div 
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
+                  style={{ backgroundColor: 'rgba(0,227,165,0.1)' }}
+                >
+                  <Trophy className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
+                  <span className="text-sm" style={{ color: 'var(--color-primary)' }}>
+                    Quiz Score: {quizResult?.percentage || enrollment?.bestQuizScore || 0}%
+                  </span>
+                </div>
+
+                {/* Date */}
+                <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                  Completed on {new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+
+                {/* Certificate ID */}
+                <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>
+                  Certificate ID: {enrollment?._id?.slice(-8).toUpperCase() || 'XXXXXXXX'}
+                </p>
+              </div>
+            </div>
+
+            {/* Download Buttons */}
+            <div 
+              className="flex items-center justify-center gap-4 p-4 border-t"
+              style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+            >
+              <Button variant="secondary" onClick={() => setShowCertificate(false)}>
+                Close
+              </Button>
+              <Button onClick={downloadCertificate}>
+                <Download className="w-4 h-4" />
+                Download Certificate
+              </Button>
             </div>
           </div>
         </div>

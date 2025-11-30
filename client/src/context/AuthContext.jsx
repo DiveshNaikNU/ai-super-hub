@@ -89,6 +89,32 @@ export function AuthProvider({ children }) {
     toast.success('Logged out successfully');
   };
 
+  // Login with token (for OAuth callback)
+  const loginWithToken = async (token) => {
+    try {
+      // Store token first
+      localStorage.setItem('token', token);
+      
+      // Fetch user data
+      const response = await api.get('/auth/me');
+      const user = response.data.data.user;
+      
+      setUser(user);
+      setIsAuthenticated(true);
+      
+      // No toast here - AuthCallback shows the message
+      return { success: true, user };
+    } catch (error) {
+      // Clear token if failed
+      localStorage.removeItem('token');
+      setUser(null);
+      setIsAuthenticated(false);
+      
+      const message = error.response?.data?.message || 'Authentication failed';
+      return { success: false, error: message };
+    }
+  };
+
   const updateUser = (userData) => {
     setUser(prev => ({ ...prev, ...userData }));
   };
@@ -99,6 +125,7 @@ export function AuthProvider({ children }) {
       loading,
       isAuthenticated,
       login,
+      loginWithToken,
       register,
       logout,
       updateUser,

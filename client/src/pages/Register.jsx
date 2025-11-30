@@ -106,7 +106,7 @@ const validateEmail = (email) => {
     return { isValid: false, message: 'Email username is too short' };
   }
   
-  return { isValid: true, message: 'Valid email format' };
+  return { isValid: true, message: 'We\'ll send important updates here' };
 };
 
 // Validation indicator component

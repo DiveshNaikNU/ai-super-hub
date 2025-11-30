@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 /**
  * AuthCallback Component
@@ -10,19 +11,24 @@ import { useAuth } from '../context/AuthContext';
  * 1. Extracts token from URL params
  * 2. Stores token and fetches user data
  * 3. Redirects to dashboard on success
- * 4. Shows error on failure
  */
 export default function AuthCallback() {
-  const [status, setStatus] = useState('loading'); // loading, success, error
+  const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('Completing sign in...');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { loginWithToken } = useAuth();
+  
+  // Prevent double execution in React Strict Mode
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    // Skip if already executed
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const handleCallback = async () => {
       try {
-        // Get token from URL
         const token = searchParams.get('token');
         const error = searchParams.get('error');
 
@@ -38,17 +44,18 @@ export default function AuthCallback() {
           return;
         }
 
-        // Use the auth context to complete login
+        // Complete login with token
         const result = await loginWithToken(token);
 
         if (result.success) {
           setStatus('success');
-          setMessage('Sign in successful! Redirecting...');
+          setMessage(`Welcome, ${result.user?.name || 'back'}!`);
+          toast.success(`Welcome, ${result.user?.name || 'back'}!`);
           
-          // Redirect to dashboard after a brief delay
+          // Redirect to dashboard
           setTimeout(() => {
             navigate('/dashboard', { replace: true });
-          }, 1500);
+          }, 1000);
         } else {
           setStatus('error');
           setMessage(result.error || 'Failed to complete sign in');
@@ -61,7 +68,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [searchParams, navigate, loginWithToken]);
+  }, []);
 
   const getErrorMessage = (error) => {
     switch (error) {
@@ -113,9 +120,7 @@ export default function AuthCallback() {
               className="w-20 h-20 mx-auto rounded-full flex items-center justify-center"
               style={{ backgroundColor: 'rgba(239,68,68,0.1)' }}
             >
-              <XCircle 
-                className="w-10 h-10 text-red-500" 
-              />
+              <XCircle className="w-10 h-10 text-red-500" />
             </div>
           )}
         </div>
@@ -126,7 +131,7 @@ export default function AuthCallback() {
           style={{ color: 'var(--color-text)' }}
         >
           {status === 'loading' && 'Signing you in...'}
-          {status === 'success' && 'Welcome!'}
+          {status === 'success' && 'Success!'}
           {status === 'error' && 'Sign in failed'}
         </h2>
         

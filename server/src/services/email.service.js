@@ -411,10 +411,17 @@ const sendPasswordResetEmail = async ({ to, name, resetToken }) => {
               <a href="${resetUrl}" 
                  style="display: inline-block; background: linear-gradient(135deg, #00E3A5 0%, #00D1FF 100%); 
                         color: #0D0D0D; text-decoration: none; padding: 16px 48px; border-radius: 12px; 
-                        font-weight: 600; font-size: 16px;">
+                        font-weight: 600; font-size: 16px;"
+                 target="_blank">
                 Reset Password
               </a>
             </div>
+            
+            <!-- Plain text link fallback -->
+            <p style="color: #666666; font-size: 12px; text-align: center; margin: 16px 0;">
+              Button not working? Copy and paste this link in your browser:<br>
+              <a href="${resetUrl}" style="color: #00E3A5; word-break: break-all;" target="_blank">${resetUrl}</a>
+            </p>
             
             <p style="color: #666666; font-size: 14px; text-align: center; margin: 24px 0 0 0;">
               This link expires in <strong style="color: #A0A0A0;">1 hour</strong>

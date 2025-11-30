@@ -17,6 +17,13 @@ const emptyLesson = {
   order: 1
 };
 
+// Extract YouTube video ID from URL
+const getYouTubeVideoId = (url) => {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  return match ? match[1] : null;
+};
+
 export default function AdminLessons() {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -353,8 +360,31 @@ export default function AdminLessons() {
                 label="Video URL (Optional)"
                 value={formData.videoUrl}
                 onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                placeholder="https://youtube.com/watch?v=... or Vimeo URL"
+                placeholder="https://www.youtube.com/watch?v=xxxxx"
               />
+              
+              {/* YouTube Preview */}
+              {formData.videoUrl && getYouTubeVideoId(formData.videoUrl) && (
+                <div className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
+                  <div className="aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(formData.videoUrl)}`}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  </div>
+                  <p className="text-xs p-2 text-center" style={{ color: 'var(--color-text-muted)' }}>
+                    ✓ Valid YouTube URL detected
+                  </p>
+                </div>
+              )}
+              
+              {formData.videoUrl && !getYouTubeVideoId(formData.videoUrl) && (
+                <p className="text-xs text-red-400">
+                  ⚠️ Invalid YouTube URL. Use format: https://www.youtube.com/watch?v=VIDEO_ID
+                </p>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <Input
