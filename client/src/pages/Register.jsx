@@ -6,13 +6,14 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Logo from '../components/common/Logo';
+import HelperChatBot from '../components/common/HelperChatBot';
 
 const benefits = [
-  'Access to 50+ curated AI tools',
+  'Access to 70+ curated AI tools',
   'Learn from expert-led courses',
   'Chat with advanced AI models',
+  'Earn certificates on completion',
   'Track your learning progress',
-  'Join our AI community',
 ];
 
 // Name validation
@@ -618,6 +619,9 @@ export default function Register() {
           </p>
         </motion.div>
       </div>
+
+      {/* Floating AI Learning Guide Chat Bot */}
+      <HelperChatBot />
     </div>
   );
 }

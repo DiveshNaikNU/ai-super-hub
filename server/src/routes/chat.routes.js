@@ -18,7 +18,51 @@ const {
   updateChatValidator
 } = require('../validators/chat.validator');
 
-// All chat routes require authentication
+/**
+ * @swagger
+ * /api/chats/helper:
+ *   post:
+ *     summary: Public AI Learning Guide helper (no auth required)
+ *     tags: [Chats]
+ *     description: AI-powered helper for guiding visitors about courses, tools, and learning paths
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - message
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 description: User's question or message
+ *                 example: "What courses should I start with?"
+ *               context:
+ *                 type: string
+ *                 description: Context identifier (optional)
+ *                 example: "learning_guide"
+ *     responses:
+ *       200:
+ *         description: AI response generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     response:
+ *                       type: string
+ */
+router.post('/helper', chatController.helperChat);
+
+// All other chat routes require authentication
 router.use(protect);
 
 /**

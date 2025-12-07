@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import Logo from '../common/Logo';
 
 const footerLinks = {
@@ -7,19 +7,16 @@ const footerLinks = {
     { name: 'AI Tools', href: '/tools' },
     { name: 'AI Chat', href: '/chat' },
     { name: 'Courses', href: '/courses' },
-    { name: 'Playground', href: '/playground' },
   ],
   resources: [
     { name: 'Documentation', href: '/docs' },
-    { name: 'API Reference', href: '/api' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'API Reference', href: '/api-docs' },
     { name: 'Support', href: '/support' },
   ],
   company: [
     { name: 'About', href: '/about' },
     { name: 'Privacy', href: '/privacy' },
     { name: 'Terms', href: '/terms' },
-    { name: 'Contact', href: '/contact' },
   ],
 };
 
@@ -116,8 +113,8 @@ export default function Footer() {
           <p className="text-sm text-text-muted">
             © {new Date().getFullYear()} AI Super Hub. All rights reserved.
           </p>
-          <p className="text-sm text-text-muted flex items-center gap-1">
-            Made with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> for INFO 6150
+          <p className="text-sm text-text-muted">
+            Built by AI Super Hub Team - Your Gateway to AI Learning
           </p>
         </div>
       </div>

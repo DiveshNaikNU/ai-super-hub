@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Filter, Bookmark, BookmarkCheck, ExternalLink, 
   Sparkles, Image, Code, MessageSquare, Music, Video,
-  FileText, Brain, Loader2, X, ChevronDown
+  FileText, Brain, Loader2, X, ChevronDown, Wrench
 } from 'lucide-react';
 import { toolsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -54,7 +54,7 @@ export default function Tools() {
   const loadTools = async () => {
     try {
       setIsLoading(true);
-      const params = {};
+      const params = { limit: 100 }; // Fetch up to 100 tools
       if (selectedCategory !== 'all') params.category = selectedCategory;
       if (selectedPricing !== 'all') params.pricing = selectedPricing;
       if (searchQuery) params.search = searchQuery;
@@ -159,7 +159,7 @@ export default function Tools() {
               <button
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
-                className="p-3 rounded-xl border transition-colors"
+                className="p-3 rounded-xl border transition-colors lg:hidden"
                 style={{ 
                   backgroundColor: 'var(--color-surface)',
                   borderColor: showFilters ? 'var(--color-primary)' : 'var(--color-border)',
@@ -208,13 +208,13 @@ export default function Tools() {
               <div className="card">
                 <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text)' }}>Pricing</h3>
                 <div className="space-y-1">
-                {pricingFilters.map((pricing) => {
+                  {pricingFilters.map((pricing) => {
                     const isActive = selectedPricing === pricing.id;
                     return (
                       <button
                         key={pricing.id}
                         onClick={() => setSelectedPricing(pricing.id)}
-                        className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-colors ${
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm transition-colors ${
                           isActive ? 'bg-[rgba(0,227,165,0.1)]' : ''
                         }`}
                         style={{ 
@@ -230,62 +230,62 @@ export default function Tools() {
             </div>
           </aside>
 
-          {/* Mobile Filters */}
-          {showFilters && (
-            <div className="lg:hidden card mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold" style={{ color: 'var(--color-text)' }}>Filters</h3>
-                <button onClick={() => setShowFilters(false)}>
-                  <X className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
-                    Category
-                  </label>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border focus:outline-none"
-                    style={{ 
-                      backgroundColor: 'var(--color-bg)',
-                      borderColor: 'var(--color-border)',
-                      color: 'var(--color-text)'
-                    }}
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Mobile Filters */}
+            {showFilters && (
+              <div className="lg:hidden card mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold" style={{ color: 'var(--color-text)' }}>Filters</h3>
+                  <button onClick={() => setShowFilters(false)}>
+                    <X className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
+                  </button>
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
-                    Pricing
-                  </label>
-                  <select
-                    value={selectedPricing}
-                    onChange={(e) => setSelectedPricing(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border focus:outline-none"
-                    style={{ 
-                      backgroundColor: 'var(--color-bg)',
-                      borderColor: 'var(--color-border)',
-                      color: 'var(--color-text)'
-                    }}
-                  >
-                    {pricingFilters.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
+                      Category
+                    </label>
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border focus:outline-none"
+                      style={{ 
+                        backgroundColor: 'var(--color-bg)',
+                        borderColor: 'var(--color-border)',
+                        color: 'var(--color-text)'
+                      }}
+                    >
+                      {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
+                      Pricing
+                    </label>
+                    <select
+                      value={selectedPricing}
+                      onChange={(e) => setSelectedPricing(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border focus:outline-none"
+                      style={{ 
+                        backgroundColor: 'var(--color-bg)',
+                        borderColor: 'var(--color-border)',
+                        color: 'var(--color-text)'
+                      }}
+                    >
+                      {pricingFilters.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Tools Grid */}
-          <div className="flex-1">
             {/* Results Count */}
             <div className="flex items-center justify-between mb-6">
               <p style={{ color: 'var(--color-text-secondary)' }}>
@@ -321,20 +321,25 @@ export default function Tools() {
                       {/* Tool Header */}
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          {tool.logo ? (
-                            <img 
-                              src={tool.logo} 
-                              alt={tool.name}
-                              className="w-12 h-12 rounded-xl object-cover"
-                            />
-                          ) : (
-                            <div 
-                              className="w-12 h-12 rounded-xl flex items-center justify-center"
-                              style={{ backgroundColor: 'rgba(0,227,165,0.1)' }}
-                            >
+                          {/* Tool Logo */}
+                          <div 
+                            className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0"
+                            style={{ backgroundColor: 'var(--color-bg)' }}
+                          >
+                            {tool.logo ? (
+                              <img 
+                                src={tool.logo} 
+                                alt={tool.name}
+                                className="w-10 h-10 object-contain"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = 'none';
+                                }}
+                              />
+                            ) : (
                               <CategoryIcon className="w-6 h-6" style={{ color: 'var(--color-primary)' }} />
-                            </div>
-                          )}
+                            )}
+                          </div>
                           <div>
                             <h3 className="font-semibold group-hover:text-[var(--color-primary)] transition-colors" style={{ color: 'var(--color-text)' }}>
                               {tool.name}
@@ -361,7 +366,7 @@ export default function Tools() {
                         
                         <button
                           onClick={() => toggleBookmark(tool._id)}
-                          className="p-2 rounded-lg transition-colors hover:bg-[var(--color-surface-hover)]"
+                          className="p-2 rounded-lg transition-colors hover:bg-[var(--color-bg)]"
                         >
                           {isBookmarked ? (
                             <BookmarkCheck className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />

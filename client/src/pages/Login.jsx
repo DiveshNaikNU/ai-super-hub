@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Logo from '../components/common/Logo';
+import HelperChatBot from '../components/common/HelperChatBot';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -38,12 +39,7 @@ export default function Login() {
     setIsLoading(false);
 
     if (result.success) {
-      // Redirect to verify-email if not verified, otherwise dashboard
-      if (result.requiresVerification) {
-        navigate('/verify-email');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate('/dashboard');
     }
   };
 
@@ -74,7 +70,7 @@ export default function Login() {
               label="Email"
               type="email"
               name="email"
-              placeholder="Enter your email address"
+              placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
               error={errors.email}
@@ -179,10 +175,36 @@ export default function Login() {
             transition={{ delay: 0.4 }}
             className="text-text-secondary"
           >
-            Access 50+ AI tools, learn from expert courses, and chat with advanced AI assistants.
+            Access 70+ AI tools, learn from expert courses, and chat with advanced AI assistants.
           </motion.p>
+
+          {/* Feature highlights */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 grid grid-cols-3 gap-4"
+          >
+            {[
+              { label: '70+', desc: 'AI Tools' },
+              { label: '50+', desc: 'Courses' },
+              { label: '24/7', desc: 'AI Chat' },
+            ].map((item, idx) => (
+              <div 
+                key={idx}
+                className="p-3 rounded-xl"
+                style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+              >
+                <div className="text-2xl font-bold text-gradient">{item.label}</div>
+                <div className="text-xs text-text-secondary">{item.desc}</div>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
+
+      {/* Floating AI Learning Guide Chat Bot */}
+      <HelperChatBot />
     </div>
   );
 }

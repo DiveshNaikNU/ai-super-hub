@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Plus, Search, Edit, Trash2, Loader2, X,
-  ExternalLink, Wrench, Upload, Image, Star
+  ExternalLink, Wrench
 } from 'lucide-react';
-import { toolsAPI, uploadAPI } from '../../services/api';
+import { toolsAPI } from '../../services/api';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import toast from 'react-hot-toast';
@@ -19,24 +19,22 @@ const emptyTool = {
   name: '',
   description: '',
   url: '',
+  logo: '',
   category: 'chatbot',
   pricing: 'free',
   tags: '',
-  logo: '',
-  featured: false
+  isFeatured: false,
+  isActive: true
 };
 
 export default function AdminTools() {
-  const fileInputRef = useRef(null);
   const [tools, setTools] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingTool, setEditingTool] = useState(null);
   const [formData, setFormData] = useState(emptyTool);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     loadTools();
@@ -66,11 +64,12 @@ export default function AdminTools() {
       name: tool.name || '',
       description: tool.description || '',
       url: tool.url || '',
+      logo: tool.logo || '',
       category: tool.category || 'chatbot',
       pricing: tool.pricing || 'free',
       tags: tool.tags?.join(', ') || '',
-      logo: tool.logo || '',
-      featured: tool.featured || false
+      isFeatured: tool.isFeatured || false,
+      isActive: tool.isActive !== false
     });
     setShowModal(true);
   };
@@ -79,59 +78,6 @@ export default function AdminTools() {
     setShowModal(false);
     setEditingTool(null);
     setFormData(emptyTool);
-  };
-
-  // Handle icon upload
-  const handleIconUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
-      return;
-    }
-
-    // If editing existing tool, upload directly to tool icon endpoint
-    if (editingTool) {
-      try {
-        setIsUploading(true);
-        const response = await uploadAPI.toolIcon(editingTool._id, file);
-        const newUrl = response.data.data.url;
-        setFormData({ ...formData, logo: newUrl });
-        toast.success('Icon uploaded!');
-      } catch (error) {
-        console.error('Upload error:', error);
-        toast.error(error.response?.data?.message || 'Failed to upload icon');
-      } finally {
-        setIsUploading(false);
-      }
-    } else {
-      // For new tool, use general upload
-      try {
-        setIsUploading(true);
-        const response = await uploadAPI.image(file);
-        const newUrl = response.data.data.url;
-        setFormData({ ...formData, logo: newUrl });
-        toast.success('Image uploaded!');
-      } catch (error) {
-        console.error('Upload error:', error);
-        toast.error(error.response?.data?.message || 'Failed to upload image');
-      } finally {
-        setIsUploading(false);
-      }
-    }
-
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -178,32 +124,10 @@ export default function AdminTools() {
     }
   };
 
-  const toggleFeatured = async (tool) => {
-    try {
-      await toolsAPI.update(tool._id, { featured: !tool.featured });
-      toast.success(tool.featured ? 'Removed from featured' : 'Added to featured');
-      loadTools();
-    } catch (error) {
-      toast.error('Failed to update tool');
-    }
-  };
-
-  // Filter tools
-  const filteredTools = tools.filter(tool => {
-    const matchesSearch = tool.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tool.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !filterCategory || tool.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  // Stats
-  const stats = {
-    total: tools.length,
-    free: tools.filter(t => t.pricing === 'free').length,
-    freemium: tools.filter(t => t.pricing === 'freemium').length,
-    paid: tools.filter(t => t.pricing === 'paid').length,
-    featured: tools.filter(t => t.featured).length
-  };
+  const filteredTools = tools.filter(tool =>
+    tool.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div>
@@ -219,25 +143,9 @@ export default function AdminTools() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
-        {[
-          { label: 'Total', value: stats.total, color: 'var(--color-primary)' },
-          { label: 'Free', value: stats.free, color: '#10B981' },
-          { label: 'Freemium', value: stats.freemium, color: '#00D1FF' },
-          { label: 'Paid', value: stats.paid, color: '#FBBF24' },
-          { label: 'Featured', value: stats.featured, color: '#F472B6' }
-        ].map((stat, idx) => (
-          <div key={idx} className="card p-4 text-center">
-            <p className="text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
-            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{stat.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
+      {/* Search */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--color-text-muted)' }} />
           <input
             type="text"
@@ -252,21 +160,6 @@ export default function AdminTools() {
             }}
           />
         </div>
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="px-4 py-2 rounded-lg border focus:outline-none capitalize"
-          style={{ 
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)'
-          }}
-        >
-          <option value="">All Categories</option>
-          {categories.map(cat => (
-            <option key={cat} value={cat} className="capitalize">{cat}</option>
-          ))}
-        </select>
       </div>
 
       {/* Tools Table */}
@@ -279,10 +172,6 @@ export default function AdminTools() {
           <div className="text-center py-12">
             <Wrench className="w-12 h-12 mx-auto mb-3 opacity-20" />
             <p style={{ color: 'var(--color-text-secondary)' }}>No tools found</p>
-            <Button onClick={openCreateModal} className="mt-4">
-              <Plus className="w-4 h-4" />
-              Add First Tool
-            </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -301,15 +190,21 @@ export default function AdminTools() {
                   <tr key={tool._id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
+                        {/* Tool Logo */}
                         <div 
-                          className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: 'rgba(0,227,165,0.1)' }}
+                          className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
+                          style={{ backgroundColor: 'var(--color-bg)' }}
                         >
                           {tool.logo ? (
                             <img 
                               src={tool.logo} 
                               alt={tool.name}
-                              className="w-full h-full object-cover"
+                              className="w-8 h-8 object-contain"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '';
+                                e.target.style.display = 'none';
+                              }}
                             />
                           ) : (
                             <Wrench className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
@@ -335,25 +230,17 @@ export default function AdminTools() {
                       <span 
                         className="text-xs px-2 py-1 rounded-full capitalize"
                         style={{ 
-                          backgroundColor: tool.pricing === 'free' ? 'rgba(0,227,165,0.1)' : 
-                                          tool.pricing === 'freemium' ? 'rgba(0,209,255,0.1)' : 'rgba(251,191,36,0.1)',
-                          color: tool.pricing === 'free' ? 'var(--color-primary)' : 
-                                 tool.pricing === 'freemium' ? '#00D1FF' : '#FBBF24'
+                          backgroundColor: tool.pricing === 'free' ? 'rgba(0,227,165,0.1)' : 'rgba(251,191,36,0.1)',
+                          color: tool.pricing === 'free' ? 'var(--color-primary)' : '#FBBF24'
                         }}
                       >
                         {tool.pricing}
                       </span>
                     </td>
                     <td className="p-4">
-                      <button
-                        onClick={() => toggleFeatured(tool)}
-                        className="p-1 rounded hover:bg-[var(--color-bg)] transition-colors"
-                      >
-                        <Star 
-                          className={`w-5 h-5 ${tool.featured ? 'fill-current' : ''}`}
-                          style={{ color: tool.featured ? '#F472B6' : 'var(--color-text-muted)' }}
-                        />
-                      </button>
+                      <span style={{ color: tool.isFeatured ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
+                        {tool.isFeatured ? 'Yes' : 'No'}
+                      </span>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-2">
@@ -407,68 +294,6 @@ export default function AdminTools() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Icon Upload */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                  Tool Icon
-                </label>
-                <div className="flex gap-4 items-center">
-                  {/* Preview */}
-                  <div 
-                    className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--color-bg)', border: '1px solid var(--color-border)' }}
-                  >
-                    {formData.logo ? (
-                      <img 
-                        src={formData.logo} 
-                        alt="Icon preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Image className="w-6 h-6" style={{ color: 'var(--color-text-muted)' }} />
-                    )}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleIconUpload}
-                      className="hidden"
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isUploading}
-                    >
-                      {isUploading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4" />
-                          Upload Icon
-                        </>
-                      )}
-                    </Button>
-                    {formData.logo && (
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, logo: '' })}
-                        className="text-xs text-red-400 hover:underline ml-3"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
               <Input
                 label="Name *"
                 value={formData.name}
@@ -500,6 +325,45 @@ export default function AdminTools() {
                 onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                 placeholder="https://example.com"
               />
+
+              {/* Logo URL Field */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                  Logo URL
+                </label>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={formData.logo}
+                    onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                    placeholder="https://example.com/logo.png"
+                    className="flex-1 px-4 py-3 rounded-lg border focus:outline-none focus:border-[var(--color-primary)]"
+                    style={{ 
+                      backgroundColor: 'var(--color-bg)',
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text)'
+                    }}
+                  />
+                  {formData.logo && (
+                    <div 
+                      className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+                      style={{ backgroundColor: 'var(--color-bg)' }}
+                    >
+                      <img 
+                        src={formData.logo} 
+                        alt="Preview"
+                        className="w-10 h-10 object-contain"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                  Paste a direct image URL (PNG, JPG, SVG)
+                </p>
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -550,15 +414,27 @@ export default function AdminTools() {
                 placeholder="ai, chatbot, writing"
               />
 
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                  className="w-4 h-4 rounded"
-                />
-                <span style={{ color: 'var(--color-text-secondary)' }}>Featured tool</span>
-              </label>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isFeatured}
+                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                    className="w-4 h-4 rounded"
+                  />
+                  <span style={{ color: 'var(--color-text-secondary)' }}>Featured</span>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className="w-4 h-4 rounded"
+                  />
+                  <span style={{ color: 'var(--color-text-secondary)' }}>Active</span>
+                </label>
+              </div>
 
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="secondary" onClick={closeModal} className="flex-1">
