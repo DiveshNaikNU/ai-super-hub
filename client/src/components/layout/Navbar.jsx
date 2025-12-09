@@ -16,6 +16,7 @@ const navLinks = [
   { name: 'Tools', href: '/tools', icon: Wrench },
   { name: 'Chat', href: '/chat', icon: MessageSquare },
   { name: 'Courses', href: '/courses', icon: BookOpen },
+  { name: 'Prompts', href: '/prompts', icon: Sparkles },
 ];
 
 export default function Navbar() {

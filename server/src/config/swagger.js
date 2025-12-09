@@ -25,10 +25,10 @@ Welcome to the AI Super Hub API documentation. This API powers a full-featured A
 ### Features
 - 🔐 **Authentication** - JWT-based auth with Google OAuth 2.0
 - 💬 **AI Chat** - Powered by Google Gemini AI
-- 🛠️ **AI Tools** - Directory of 50+ AI tools
+- 🚀 **AI Tools** - Directory of 50+ AI tools
 - 📚 **Courses** - Learning courses with lessons & quizzes
 - 📤 **File Upload** - Cloudinary integration for images
-- 👥 **Admin Panel** - User and content management
+- 👤 **Admin Panel** - User and content management
 
 ### Authentication
 Most endpoints require a Bearer token:
@@ -220,6 +220,7 @@ Authorization: Bearer <your-jwt-token>
             createdAt: { type: 'string', format: 'date-time' }
           }
         },
+
         CreateToolRequest: {
           type: 'object',
           required: ['name', 'description', 'url', 'category', 'pricing'],
@@ -255,7 +256,7 @@ Authorization: Bearer <your-jwt-token>
               enum: ['beginner', 'intermediate', 'advanced'],
               example: 'beginner' 
             },
-            duration: { type: 'integer', example: 180, description: 'Duration in minutes' },
+            duration: { type: 'integer', example: 180 },
             lessons: {
               type: 'array',
               items: { $ref: '#/components/schemas/Lesson' }
@@ -279,6 +280,7 @@ Authorization: Bearer <your-jwt-token>
             }
           }
         },
+
         Lesson: {
           type: 'object',
           properties: {
@@ -286,10 +288,11 @@ Authorization: Bearer <your-jwt-token>
             title: { type: 'string', example: 'Introduction to Neural Networks' },
             content: { type: 'string', example: 'In this lesson, we will learn...' },
             videoUrl: { type: 'string', example: 'https://youtube.com/watch?v=...' },
-            duration: { type: 'integer', example: 15, description: 'Duration in minutes' },
+            duration: { type: 'integer', example: 15 },
             order: { type: 'integer', example: 1 }
           }
         },
+
         QuizQuestion: {
           type: 'object',
           properties: {
@@ -297,13 +300,13 @@ Authorization: Bearer <your-jwt-token>
             question: { type: 'string', example: 'What is a neural network?' },
             options: {
               type: 'array',
-              items: { type: 'string' },
-              example: ['A computer network', 'A machine learning model', 'A database', 'A programming language']
+              items: { type: 'string' }
             },
-            correctAnswer: { type: 'integer', example: 1, description: '0-based index' },
+            correctAnswer: { type: 'integer', example: 1 },
             explanation: { type: 'string', example: 'A neural network is inspired by biological neurons...' }
           }
         },
+
         CreateCourseRequest: {
           type: 'object',
           required: ['title', 'description', 'category', 'difficulty'],
@@ -321,6 +324,7 @@ Authorization: Bearer <your-jwt-token>
             isFeatured: { type: 'boolean', default: false }
           }
         },
+
         Enrollment: {
           type: 'object',
           properties: {
@@ -364,6 +368,7 @@ Authorization: Bearer <your-jwt-token>
             createdAt: { type: 'string', format: 'date-time' }
           }
         },
+
         Message: {
           type: 'object',
           properties: {
@@ -372,14 +377,14 @@ Authorization: Bearer <your-jwt-token>
             timestamp: { type: 'string', format: 'date-time' }
           }
         },
+
         SendMessageRequest: {
           type: 'object',
           required: ['message'],
           properties: {
             message: { 
               type: 'string', 
-              example: 'Explain machine learning in simple terms',
-              description: 'User message to send to AI'
+              example: 'Explain machine learning in simple terms'
             }
           }
         },
@@ -419,6 +424,7 @@ Authorization: Bearer <your-jwt-token>
             }
           }
         },
+
         SuccessResponse: {
           type: 'object',
           properties: {
@@ -427,6 +433,7 @@ Authorization: Bearer <your-jwt-token>
             data: { type: 'object' }
           }
         },
+
         PaginationMeta: {
           type: 'object',
           properties: {
@@ -442,6 +449,8 @@ Authorization: Bearer <your-jwt-token>
           }
         }
       },
+
+      // ==================== RESPONSES ====================
       responses: {
         UnauthorizedError: {
           description: 'Access token is missing or invalid',
@@ -483,6 +492,8 @@ Authorization: Bearer <your-jwt-token>
         }
       }
     },
+
+    // ==================== TAGS ====================
     tags: [
       { 
         name: 'Health', 
@@ -511,9 +522,18 @@ Authorization: Bearer <your-jwt-token>
       { 
         name: 'Upload', 
         description: 'File uploads - Avatars, thumbnails, images (Cloudinary)' 
+      },
+      { 
+        name: 'Prompts', 
+        description: 'AI Prompt Library - Browse, favorite, improve prompts' 
+      },
+      { 
+        name: 'Support', 
+        description: 'Support messages - Submit and manage support requests' 
       }
     ]
   },
+
   apis: ['./src/routes/*.js', './src/app.js']
 };
 

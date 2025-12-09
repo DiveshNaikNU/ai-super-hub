@@ -63,6 +63,12 @@
   border-color: var(--color-border);
 }
 
+/* CRITICAL: Prevent pseudo-elements from blocking clicks */
+*::before,
+*::after {
+  pointer-events: none;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -437,6 +443,7 @@ body {
   );
   opacity: 0;
   transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
 .card-hover:hover {
@@ -545,6 +552,7 @@ body {
     transparent
   );
   transition: left 0.5s ease;
+  pointer-events: none;
 }
 
 .btn-primary:hover {
@@ -852,6 +860,7 @@ body {
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   -webkit-mask-composite: xor;
+  pointer-events: none;
 }
 
 /* Animated Gradient Border */

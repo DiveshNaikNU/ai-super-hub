@@ -153,6 +153,13 @@ app.use('/api/users', require('./routes/user.routes'));
 // Upload routes (Cloudinary)
 app.use('/api/upload', require('./routes/upload.routes'));
 
+// Prompt routes
+app.use('/api/prompts', require('./routes/prompt.routes'));
+
+// Support routes
+app.use('/api/support', require('./routes/support.routes'));
+
+
 /* ============================================
    ERROR HANDLING
    ============================================ */
@@ -176,22 +183,22 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
   logger.info(`
-  ╔════════════════════════════════════════════════════════╗
-  ║         AI Super Hub Server is Running!                ║
-  ╠════════════════════════════════════════════════════════╣
-  ║  Environment:  ${process.env.NODE_ENV || 'development'}                            ║
-  ║  Local:        http://localhost:${PORT}                   ║
-  ║  API:          http://localhost:${PORT}/api               ║
-  ║  Docs:         http://localhost:${PORT}/api/docs          ║
-  ║  Google OAuth: Enabled                                 ║
-  ║  Cloudinary:   Enabled                                 ║
-  ╚════════════════════════════════════════════════════════╝
+  â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+  â•‘         AI Super Hub Server is Running!                â•‘
+  â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£
+  â•‘  Environment:  ${process.env.NODE_ENV || 'development'}                            â•‘
+  â•‘  Local:        http://localhost:${PORT}                   â•‘
+  â•‘  API:          http://localhost:${PORT}/api               â•‘
+  â•‘  Docs:         http://localhost:${PORT}/api/docs          â•‘
+  â•‘  Google OAuth: Enabled                                 â•‘
+  â•‘  Cloudinary:   Enabled                                 â•‘
+  â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   `);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  logger.error('UNHANDLED REJECTION! 💥 Shutting down...', { error: err.message });
+  logger.error('UNHANDLED REJECTION! ðŸ’¥ Shutting down...', { error: err.message });
   server.close(() => {
     process.exit(1);
   });
@@ -199,9 +206,9 @@ process.on('unhandledRejection', (err) => {
 
 // Handle SIGTERM signal
 process.on('SIGTERM', () => {
-  logger.info('👋 SIGTERM RECEIVED. Shutting down gracefully');
+  logger.info('ðŸ‘‹ SIGTERM RECEIVED. Shutting down gracefully');
   server.close(() => {
-    logger.info('💥 Process terminated!');
+    logger.info('ðŸ’¥ Process terminated!');
   });
 });
 

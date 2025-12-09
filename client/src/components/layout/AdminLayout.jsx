@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Wrench, BookOpen, 
   Settings, LogOut, Menu, X, ChevronLeft,
-  Sparkles
+  Sparkles, Mail
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -13,6 +13,8 @@ const sidebarLinks = [
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'AI Tools', href: '/admin/tools', icon: Wrench },
   { name: 'Courses', href: '/admin/courses', icon: BookOpen },
+  { name: 'AI Prompts', href: '/admin/prompts', icon: Sparkles },
+  { name: 'Support', href: '/admin/support', icon: Mail },
 ];
 
 export default function AdminLayout() {
@@ -83,7 +85,7 @@ export default function AdminLayout() {
         {/* User Section */}
         <div className="p-4" style={{ borderTop: '1px solid var(--color-border)' }}>
           <Link
-            to="/admin/settings"
+            to="/settings"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[var(--color-bg)] transition-colors"
             style={{ color: 'var(--color-text-secondary)' }}
           >

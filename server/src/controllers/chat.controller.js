@@ -3,7 +3,8 @@
  * @description Handles AI chat operations
  * 
  * @author AI Super Hub Team
- * @version 1.0.0
+ * @version 2.0.0 - Bulletproof version for presentation
+ * @updated December 2025
  */
 
 const Chat = require('../models/Chat');
@@ -11,6 +12,22 @@ const { validationResult } = require('express-validator');
 const { catchAsync } = require('../middlewares/error.middleware');
 const { generateResponse, generateChatTitle } = require('../services/gemini.service');
 const logger = require('../utils/logger');
+
+// Default model - gemini-2.5-flash works, gemini-2.0-flash has quota issues
+const DEFAULT_MODEL = 'gemini-2.5-flash';
+
+// Models to auto-fix (these have quota issues)
+const DEPRECATED_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'];
+
+/**
+ * Helper: Fix deprecated models
+ */
+const fixModelIfNeeded = (model) => {
+  if (!model || DEPRECATED_MODELS.includes(model)) {
+    return DEFAULT_MODEL;
+  }
+  return model;
+};
 
 /**
  * @desc    Get all chats for current user
@@ -90,15 +107,22 @@ exports.createChat = catchAsync(async (req, res) => {
 
   const { model, mode, title } = req.body;
 
+  // Always use working model
+  const safeModel = fixModelIfNeeded(model);
+
   const chat = await Chat.create({
     user: req.user._id,
-    model: model || 'gemini-2.0-flash',
+    model: safeModel,
     mode: mode || 'general',
     title: title || 'New Chat',
     messages: []
   });
 
-  logger.info('New chat created', { chatId: chat._id, userId: req.user._id });
+  logger.info('New chat created', { 
+    chatId: chat._id, 
+    userId: req.user._id,
+    model: safeModel 
+  });
 
   res.status(201).json({
     success: true,
@@ -137,6 +161,18 @@ exports.sendMessage = catchAsync(async (req, res) => {
     });
   }
 
+  // AUTO-FIX: Update deprecated models to working model
+  const originalModel = chat.model;
+  chat.model = fixModelIfNeeded(chat.model);
+  
+  if (originalModel !== chat.model) {
+    logger.info('Auto-fixed deprecated model', { 
+      chatId: chat._id, 
+      from: originalModel, 
+      to: chat.model 
+    });
+  }
+
   // Add user message
   chat.messages.push({
     role: 'user',
@@ -144,12 +180,30 @@ exports.sendMessage = catchAsync(async (req, res) => {
     timestamp: new Date()
   });
 
-  // Generate AI response
-  const aiResponse = await generateResponse(
-    chat.messages,
-    chat.model,
-    chat.mode
-  );
+  // Generate AI response with retry logic
+  let aiResponse;
+  try {
+    aiResponse = await generateResponse(
+      chat.messages,
+      chat.model,
+      chat.mode
+    );
+  } catch (error) {
+    logger.error('AI response failed, trying fallback', { error: error.message });
+    
+    // Fallback: Try with default model
+    try {
+      chat.model = DEFAULT_MODEL;
+      aiResponse = await generateResponse(
+        chat.messages,
+        DEFAULT_MODEL,
+        chat.mode
+      );
+    } catch (fallbackError) {
+      // Ultimate fallback: Return helpful error message
+      aiResponse = "I'm having trouble connecting to the AI service right now. Please try again in a moment. If the issue persists, the service may be temporarily unavailable.";
+    }
+  }
 
   // Add AI response
   chat.messages.push({
@@ -160,12 +214,21 @@ exports.sendMessage = catchAsync(async (req, res) => {
 
   // Generate title if this is the first message
   if (chat.messages.length === 2 && chat.title === 'New Chat') {
-    chat.title = await generateChatTitle(message);
+    try {
+      chat.title = await generateChatTitle(message);
+    } catch (error) {
+      // Fallback title
+      chat.title = message.substring(0, 50) + (message.length > 50 ? '...' : '');
+    }
   }
 
   await chat.save();
 
-  logger.debug('Message sent', { chatId: chat._id, messageCount: chat.messageCount });
+  logger.debug('Message sent', { 
+    chatId: chat._id, 
+    messageCount: chat.messageCount,
+    model: chat.model 
+  });
 
   res.status(200).json({
     success: true,
@@ -197,10 +260,13 @@ exports.quickChat = catchAsync(async (req, res) => {
     });
   }
 
+  // Always use working model
+  const safeModel = fixModelIfNeeded(model);
+
   // Create new chat with initial message
   const chat = await Chat.create({
     user: req.user._id,
-    model: model || 'gemini-2.0-flash',
+    model: safeModel,
     mode: mode || 'general',
     title: 'New Chat',
     messages: [{
@@ -210,12 +276,18 @@ exports.quickChat = catchAsync(async (req, res) => {
     }]
   });
 
-  // Generate AI response
-  const aiResponse = await generateResponse(
-    chat.messages,
-    chat.model,
-    chat.mode
-  );
+  // Generate AI response with error handling
+  let aiResponse;
+  try {
+    aiResponse = await generateResponse(
+      chat.messages,
+      chat.model,
+      chat.mode
+    );
+  } catch (error) {
+    logger.error('Quick chat AI response failed', { error: error.message });
+    aiResponse = "I'm having trouble connecting right now. Please try again in a moment.";
+  }
 
   // Add AI response
   chat.messages.push({
@@ -224,12 +296,16 @@ exports.quickChat = catchAsync(async (req, res) => {
     timestamp: new Date()
   });
 
-  // Generate title
-  chat.title = await generateChatTitle(message);
+  // Generate title with fallback
+  try {
+    chat.title = await generateChatTitle(message);
+  } catch (error) {
+    chat.title = message.substring(0, 50) + (message.length > 50 ? '...' : '');
+  }
 
   await chat.save();
 
-  logger.info('Quick chat created', { chatId: chat._id });
+  logger.info('Quick chat created', { chatId: chat._id, model: safeModel });
 
   res.status(201).json({
     success: true,
@@ -291,26 +367,8 @@ exports.helperChat = catchAsync(async (req, res) => {
 
 Keep responses under 200 words unless detailed explanation is needed. Use markdown formatting (**bold**, *italic*, bullet points) for better readability.`;
 
-  try {
-    // Use Gemini to generate response
-    const messages = [
-      { role: 'user', content: systemPrompt + '\n\nUser question: ' + message }
-    ];
-
-    const aiResponse = await generateResponse(messages, 'gemini-2.0-flash', 'general');
-
-    logger.debug('Helper chat response generated');
-
-    res.status(200).json({
-      success: true,
-      message: 'Response generated',
-      data: { response: aiResponse }
-    });
-  } catch (error) {
-    logger.error('Helper chat error', { error: error.message });
-    
-    // Return a helpful fallback response
-    const fallbackResponse = `I'm here to help you explore AI Super Hub! 🤖
+  // Fallback response for when API fails
+  const fallbackResponse = `I'm here to help you explore AI Super Hub! 🤖
 
 **I can help with:**
 • 🛤️ Finding the right learning path
@@ -327,6 +385,25 @@ Keep responses under 200 words unless detailed explanation is needed. Use markdo
 
 What would you like to know?`;
 
+  try {
+    // Use Gemini to generate response with working model
+    const messages = [
+      { role: 'user', content: systemPrompt + '\n\nUser question: ' + message }
+    ];
+
+    const aiResponse = await generateResponse(messages, DEFAULT_MODEL, 'general');
+
+    logger.debug('Helper chat response generated');
+
+    res.status(200).json({
+      success: true,
+      message: 'Response generated',
+      data: { response: aiResponse }
+    });
+  } catch (error) {
+    logger.error('Helper chat error', { error: error.message });
+    
+    // Return helpful fallback response - never fail!
     res.status(200).json({
       success: true,
       message: 'Response generated',

@@ -5,8 +5,13 @@ import {
   BookOpen, Wrench, GraduationCap, Target, Compass,
   LogIn, UserPlus, Loader2, ChevronRight, Zap,
   Brain, Code, Image, Mic, TrendingUp, Award,
-  ArrowRight, RotateCcw, Minimize2
+  ArrowRight, RotateCcw, Minimize2, Move
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
+
+// BOT NAME
+const BOT_NAME = "Nova";
+const BOT_TAGLINE = "Your AI Learning Companion";
 
 // Quick action categories
 const quickActions = [
@@ -25,9 +30,10 @@ const goalActions = [
   { id: 'coding', label: 'AI-Assisted Coding', icon: Code },
 ];
 
-// Pre-defined responses
+// Pre-defined responses with suggestions
 const responses = {
-  greeting: `👋 Welcome to **AI Super Hub**! I'm your AI Learning Guide.
+  greeting: {
+    text: `👋 Welcome to **AI Super Hub**! I'm ${BOT_NAME}, your AI Learning Guide.
 
 I can help you:
 • 🛤️ Find the perfect learning path
@@ -36,8 +42,11 @@ I can help you:
 • 🎯 Plan your AI journey
 
 **What would you like to explore today?**`,
+    suggestions: ["I'm new to AI", "Browse courses", "Explore tools"]
+  },
 
-  beginner: `Great choice starting your AI journey! 🚀
+  beginner: {
+    text: `Great choice starting your AI journey! 🚀
 
 Here's my recommended **Beginner's Path**:
 
@@ -53,11 +62,12 @@ Essential programming for AI/ML projects
 🔬 *Data Science Fundamentals* - 15 hours
 Build your first ML model!
 
-💡 **Tip**: Start with our free courses to build a strong foundation.
+💡 **Tip**: Start with our free courses to build a strong foundation.`,
+    suggestions: ["Start learning", "View courses", "Get certified"]
+  },
 
-Would you like me to explain any of these courses in detail?`,
-
-  'learning-path': `I'll help you find the perfect path! 🎯
+  'learning-path': {
+    text: `I'll help you find the perfect path! 🎯
 
 **What's your main goal?**
 
@@ -67,8 +77,11 @@ Would you like me to explain any of these courses in detail?`,
 💻 **AI Coding** - GitHub Copilot, code assistants
 
 Or tell me more about what you want to achieve!`,
+    suggestions: ["Machine Learning", "Prompt Engineering", "AI Creative", "AI Coding"]
+  },
 
-  courses: `📚 **Our Course Categories:**
+  courses: {
+    text: `📚 **Our Course Categories:**
 
 **By Skill Level:**
 • 🟢 Beginner - No prior experience needed
@@ -83,363 +96,334 @@ Or tell me more about what you want to achieve!`,
 • 📊 Data Science
 
 **What interests you most?** I can recommend specific courses!`,
+    suggestions: ["Beginner courses", "ML courses", "Get certified"]
+  },
 
-  tools: `🛠️ **AI Tools Directory** - 70+ Tools!
+  tools: {
+    text: `🛠️ **AI Tools Directory** - 70+ Tools!
 
 **Categories:**
-• ✍️ **Writing** - ChatGPT, Claude, Jasper, Copy.ai
-• 🎨 **Image** - Midjourney, DALL-E, Stable Diffusion
-• 🎬 **Video** - Runway, Synthesia, HeyGen
-• 🎵 **Audio** - ElevenLabs, Murf AI, Suno
-• 💻 **Coding** - GitHub Copilot, Cursor, Replit AI
-• 📊 **Productivity** - Notion AI, Zapier, Otter.ai
+• 💬 **Chat & Writing**: ChatGPT, Claude, Jasper
+• 🎨 **Image Generation**: Midjourney, DALL-E, Stable Diffusion
+• 🎥 **Video**: Runway, Synthesia, HeyGen
+• 🎵 **Audio**: ElevenLabs, Murf, Resemble
+• 💻 **Code**: GitHub Copilot, Tabnine, Cursor
+• 📊 **Data**: ChatPDF, Julius, DataRobot
 
-All tools include:
-✅ Direct links to websites
-✅ Pricing info (Free/Freemium/Paid)
-✅ Category tags
-✅ Bookmark feature (after login)
+Each tool has detailed info, pricing, and tutorials!`,
+    suggestions: ["Explore tools", "ChatGPT tips", "Image generation"]
+  },
 
-**Which category interests you?**`,
+  certificate: {
+    text: `🎓 **Get Certified!**
 
-  certificate: `🎓 **Earn AI Certificates!**
+Here's how to earn your certificate:
 
-**How it works:**
-1. 📚 Enroll in any course
-2. ▶️ Complete all video lessons
-3. ✅ Pass the final quiz (70%+ score)
-4. 🏆 Download your certificate!
+**Step 1**: Enroll in a course
+**Step 2**: Complete all lessons
+**Step 3**: Pass the quiz (70%+ score)
+**Step 4**: Download your certificate! ✅
 
-**Certificate includes:**
-• Your name & course title
-• Completion date
-• Unique certificate ID
-• Shareable on LinkedIn!
+**Certificate Benefits:**
+• LinkedIn-ready credentials
+• Showcase your AI expertise
+• Career advancement
+• Community recognition
 
-**Popular Certified Courses:**
-• Machine Learning Fundamentals
-• Deep Learning with TensorFlow
-• Prompt Engineering Mastery
+Ready to start?`,
+    suggestions: ["Browse courses", "Requirements", "View sample"]
+  },
 
-Want me to suggest a course to get certified?`,
+  ml: {
+    text: `🧠 **Machine Learning Learning Path**
 
-  ml: `🧠 **Machine Learning Path**
+**Level 1: Foundations** (8-10 weeks)
+1. Python Programming Basics
+2. Mathematics for ML (Linear Algebra, Calculus, Stats)
+3. Introduction to Machine Learning
 
-**Recommended Learning Order:**
+**Level 2: Core ML** (10-12 weeks)
+4. Supervised Learning Algorithms
+5. Unsupervised Learning & Clustering
+6. Model Evaluation & Tuning
 
-**1. Foundations** (2-3 weeks)
-📘 *ML Fundamentals* - 20 hours
-Algorithms, supervised/unsupervised learning, model evaluation
+**Level 3: Deep Learning** (12-15 weeks)
+7. Neural Networks Fundamentals
+8. CNN for Computer Vision
+9. RNN & Transformers for NLP
 
-**2. Deep Learning** (3-4 weeks)
-🔥 *Deep Learning with TensorFlow* - 25 hours
-Neural networks, CNNs, RNNs, transformers
+Start your journey today!`,
+    suggestions: ["Start learning", "View courses", "Prerequisites"]
+  },
 
-**3. Deployment** (1-2 weeks)
-🚀 *ML Model Deployment* - 10 hours
-APIs, Docker, cloud deployment
+  prompt: {
+    text: `✨ **Prompt Engineering Mastery Path**
 
-**Tools to Practice:**
-• Google Colab (Free)
-• Kaggle Datasets
-• HuggingFace Models
+**Level 1: Basics** (2-3 weeks)
+• Fundamentals of Prompting
+• ChatGPT & Claude Essentials
+• Writing Effective Prompts
 
-Ready to start? Create an account to enroll! 🎯`,
+**Level 2: Advanced** (3-4 weeks)
+• Chain-of-Thought Prompting
+• Few-Shot Learning
+• Prompt Templates & Frameworks
 
-  prompt: `✨ **Prompt Engineering Path**
+**Level 3: Expert** (4-5 weeks)
+• AI Agent Creation
+• Custom GPTs
+• Production Prompt Engineering
 
-**Why Learn This?**
-• High demand skill in 2024
-• Works with any AI tool
-• No coding required!
+Plus: Access to 50+ ready-to-use prompt templates!`,
+    suggestions: ["Start learning", "View prompts", "ChatGPT course"]
+  },
 
-**Recommended Courses:**
+  creative: {
+    text: `🎨 **AI for Creative Work**
 
-**1. Start Here** (Free!)
-💬 *ChatGPT Mastery* - 6 hours
-Basic to advanced prompting techniques
+**Image Generation**:
+• Midjourney Mastery
+• DALL-E 3 Techniques
+• Stable Diffusion Advanced
 
-**2. Level Up**
-🎯 *Advanced Prompt Engineering* - 10 hours
-Chain-of-thought, few-shot learning, system prompts
+**Video Creation**:
+• AI Video with Runway
+• Synthesia for Business
+• D-ID Avatar Creation
 
-**3. Apply Skills**
-⚡ *AI Tools for Productivity* - 8 hours
-Automate tasks with AI
+**Audio & Music**:
+• Voice Cloning with ElevenLabs
+• AI Music with Suno
+• Sound Effects Generation
 
-**Tools to Master:**
-• ChatGPT & GPT-4
-• Claude (Anthropic)
-• Midjourney (Images)
-• Perplexity (Research)
+Transform your creativity with AI!`,
+    suggestions: ["Image tools", "Video tools", "Start learning"]
+  },
 
-All available in our Tools section! 🛠️`,
+  coding: {
+    text: `💻 **AI-Assisted Coding Path**
 
-  creative: `🎨 **AI Creative Path**
+**Tools to Master**:
+• GitHub Copilot - AI pair programmer
+• Cursor - AI code editor
+• ChatGPT for debugging
+• Tabnine - Smart code completion
 
-**Create Amazing Content with AI!**
+**Skills You'll Learn**:
+✅ Writing code 10x faster
+✅ Debugging with AI
+✅ Code documentation automation
+✅ Learning new frameworks quickly
+✅ Refactoring & optimization
 
-**Image Generation** (Start Here)
-🖼️ *Midjourney & DALL-E Mastery* - 8 hours
-Create stunning AI art & graphics
+Perfect for developers of all levels!`,
+    suggestions: ["Coding tools", "Start learning", "ChatGPT for code"]
+  },
 
-**Video Creation**
-🎬 *AI Video Generation* - 12 hours
-Runway, Synthesia, HeyGen tutorials
+  login: {
+    text: `🔐 **Login Help**
 
-**Audio & Music**
-🎵 *AI Music & Audio Creation* - 10 hours
-ElevenLabs, Suno AI, voice cloning
-
-**Top Creative Tools:**
-• Midjourney - Best for artistic images
-• DALL-E 3 - Best for realistic images
-• Runway - Professional video editing
-• ElevenLabs - Voice generation
-• Suno - Music creation
-
-Explore all 70+ tools in our directory! 🚀`,
-
-  coding: `💻 **AI-Assisted Coding Path**
-
-**Boost Your Coding 10x!**
-
-**Essential Tools:**
-• 🤖 **GitHub Copilot** - AI pair programmer
-• ⚡ **Cursor** - AI-first code editor  
-• 🔄 **Replit AI** - Code generation & explanation
-• 📝 **Tabnine** - AI autocomplete
-
-**How They Help:**
-✅ Write code faster
-✅ Auto-complete functions
-✅ Explain complex code
-✅ Find & fix bugs
-✅ Generate tests
-
-**Recommended Learning:**
-1. Start with GitHub Copilot (most popular)
-2. Learn prompt patterns for code
-3. Practice on real projects
-
-Check our Coding tools category for all options! 🛠️`,
-
-  login: `🔐 **How to Login:**
-
-1. Enter your **email** and **password**
-2. Click **"Sign In"**
-
-**Or use Google:**
-• Click "Continue with Google"
-• Select your Google account
-• You're in! 🎉
+**To log in:**
+1. Click "Login" in the top right
+2. Enter your email & password
+3. Or use "Continue with Google" for quick access
 
 **Forgot password?**
-• Click "Forgot password?"
+• Click "Forgot Password" on login page
 • Enter your email
-• Check inbox for reset link
+• Check your inbox for reset link
 
-Need to create an account first? Click "Sign up for free"!`,
+**New here?** [Register](/register) for free to access all features!`,
+    suggestions: ["Create account", "Reset password", "Browse courses"]
+  },
 
-  register: `📝 **Create Your Free Account:**
+  register: {
+    text: `✨ **Create Your Free Account!**
 
-1. Click **"Sign up for free"**
-2. Enter your **name**, **email**, **password**
-3. Confirm your password
-4. Click **"Create Account"**
+**Why sign up?**
+• 🎓 Access all courses
+• 💾 Save your progress
+• 🎯 Track learning paths
+• 🏆 Earn certificates
+• 💬 AI chat assistance
 
-**Or use Google:**
-• Click "Continue with Google"
-• One-click signup! ⚡
+**It's free** and takes just 30 seconds!
 
-**What you get:**
-✅ Access to free courses
-✅ Bookmark AI tools
-✅ Track your progress
-✅ Earn certificates
-✅ AI chat assistant
-
-Ready to start your AI journey? 🚀`,
-
-  default: `I'm here to help you explore AI Super Hub! 🤖
-
-**I can help with:**
-• 🛤️ Finding the right learning path
-• 📚 Course recommendations
-• 🛠️ AI tools exploration
-• 🎓 Certificate information
-• ❓ Platform navigation
-
-**Try asking:**
-• "What courses should I start with?"
-• "I want to learn prompt engineering"
-• "Show me image generation tools"
-• "How do I get certified?"
-
-What would you like to know?`
+[Create Account](/register) or [Sign in with Google](/auth/google)`,
+    suggestions: ["Create account", "Sign in with Google", "Learn more"]
+  }
 };
 
 export default function HelperChatBot() {
+  const { isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: responses.greeting }
+    { role: 'assistant', content: responses.greeting.text, suggestions: responses.greeting.suggestions }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [showGoalActions, setShowGoalActions] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  
+  // Dragging state
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const chatWindowRef = useRef(null);
 
   // Auto-scroll to bottom
-  useEffect(() => {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
   }, [messages]);
 
   // Focus input when chat opens
   useEffect(() => {
-    if (isOpen && !isMinimized && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 300);
+    if (isOpen && !isMinimized) {
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen, isMinimized]);
 
-  // Auto-open after 5 seconds on first visit
-  useEffect(() => {
-    const hasSeenBot = localStorage.getItem('hasSeenHelperBot');
-    if (!hasSeenBot) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        localStorage.setItem('hasSeenHelperBot', 'true');
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  // Generate response based on user input
-  const generateResponse = async (userMessage) => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Keyword matching for instant responses
-    if (lowerMessage.includes('login') || lowerMessage.includes('sign in')) {
-      return responses.login;
-    }
-    if (lowerMessage.includes('register') || lowerMessage.includes('sign up') || lowerMessage.includes('create account')) {
-      return responses.register;
-    }
-    if (lowerMessage.includes('beginner') || lowerMessage.includes('new to ai') || lowerMessage.includes('start')) {
-      return responses.beginner;
-    }
-    if (lowerMessage.includes('learning path') || lowerMessage.includes('path') || lowerMessage.includes('roadmap')) {
-      setShowGoalActions(true);
-      return responses['learning-path'];
-    }
-    if (lowerMessage.includes('course')) {
-      return responses.courses;
-    }
-    if (lowerMessage.includes('tool')) {
-      return responses.tools;
-    }
-    if (lowerMessage.includes('certificate') || lowerMessage.includes('certified')) {
-      return responses.certificate;
-    }
-    if (lowerMessage.includes('machine learning') || lowerMessage.includes(' ml ') || lowerMessage.includes('ml')) {
-      return responses.ml;
-    }
-    if (lowerMessage.includes('prompt')) {
-      return responses.prompt;
-    }
-    if (lowerMessage.includes('creative') || lowerMessage.includes('image') || lowerMessage.includes('art') || lowerMessage.includes('design')) {
-      return responses.creative;
-    }
-    if (lowerMessage.includes('coding') || lowerMessage.includes('code') || lowerMessage.includes('programming') || lowerMessage.includes('developer')) {
-      return responses.coding;
-    }
-    if (lowerMessage.includes('hi') || lowerMessage.includes('hello') || lowerMessage.includes('hey')) {
-      return responses.greeting;
-    }
-
-    // Try backend API for complex questions
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/chat/helper`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage, context: 'learning_guide' }),
+  // Dragging handlers
+  const handleMouseDown = (e) => {
+    if (e.target.closest('.drag-handle')) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.data?.response || responses.default;
-      }
-    } catch (error) {
-      console.log('Using fallback response');
     }
+  };
 
-    return responses.default;
+  const handleMouseMove = (e) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart]);
+
+  const formatMessage = (text) => {
+    // Format markdown-style text
+    const lines = text.split('\n');
+    return lines.map((line, i) => {
+      // Bold text
+      line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Italic text
+      line = line.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      return <div key={i} dangerouslySetInnerHTML={{ __html: line || '<br/>' }} />;
+    });
+  };
+
+  const addMessage = (role, content, suggestions = []) => {
+    setMessages(prev => [...prev, { role, content, suggestions }]);
+  };
+
+  const simulateTyping = (response) => {
+    setIsTyping(true);
+    // Simulate thinking time
+    setTimeout(() => {
+      setIsTyping(false);
+      addMessage('assistant', response.text, response.suggestions);
+      setShowQuickActions(false);
+      setShowGoalActions(false);
+    }, 800 + Math.random() * 400);
   };
 
   const handleSend = async () => {
-    if (!input.trim() || isTyping) return;
+    if (!input.trim()) return;
 
     const userMessage = input.trim();
     setInput('');
-    setShowQuickActions(false);
-    setShowGoalActions(false);
     setHasInteracted(true);
-    
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setIsTyping(true);
-    
-    const response = await generateResponse(userMessage);
-    
-    // Simulate typing delay
-    await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 800));
-    
-    setIsTyping(false);
-    setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-  };
+    addMessage('user', userMessage);
 
-  const handleQuickAction = async (actionId) => {
-    setShowQuickActions(false);
-    setHasInteracted(true);
+    // Check for predefined responses
+    const lowerMessage = userMessage.toLowerCase();
     
-    const action = quickActions.find(a => a.id === actionId);
-    const label = action?.label || actionId;
-    
-    setMessages(prev => [...prev, { role: 'user', content: label }]);
-    setIsTyping(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    setIsTyping(false);
-    
-    if (actionId === 'learning-path') {
-      setShowGoalActions(true);
+    let response = null;
+
+    // Goal actions
+    if (lowerMessage.includes('machine learning') || lowerMessage === 'ml') {
+      response = responses.ml;
+    } else if (lowerMessage.includes('prompt engineering') || lowerMessage.includes('prompt')) {
+      response = responses.prompt;
+    } else if (lowerMessage.includes('creative') || lowerMessage.includes('image') || lowerMessage.includes('video')) {
+      response = responses.creative;
+    } else if (lowerMessage.includes('coding') || lowerMessage.includes('code') || lowerMessage.includes('programming')) {
+      response = responses.coding;
     }
-    
-    setMessages(prev => [...prev, { 
-      role: 'assistant', 
-      content: responses[actionId] || responses.default 
-    }]);
+    // Quick actions
+    else if (lowerMessage.includes('new') || lowerMessage.includes('beginner') || lowerMessage.includes('start')) {
+      response = responses.beginner;
+    } else if (lowerMessage.includes('learning path') || lowerMessage.includes('suggest') || lowerMessage.includes('recommend')) {
+      response = responses['learning-path'];
+    } else if (lowerMessage.includes('course')) {
+      response = responses.courses;
+    } else if (lowerMessage.includes('tool')) {
+      response = responses.tools;
+    } else if (lowerMessage.includes('certif')) {
+      response = responses.certificate;
+    } else if (lowerMessage.includes('login') || lowerMessage.includes('log in') || lowerMessage.includes('sign in')) {
+      response = responses.login;
+    } else if (lowerMessage.includes('register') || lowerMessage.includes('sign up') || lowerMessage.includes('account')) {
+      response = responses.register;
+    }
+    // Greeting
+    else if (lowerMessage.match(/^(hi|hello|hey|greetings)/)) {
+      response = responses.greeting;
+    }
+    // Default: call API
+    else {
+      // Call API for AI response
+      simulateApiCall(userMessage);
+      return;
+    }
+
+    if (response) {
+      simulateTyping(response);
+    }
   };
 
-  const handleGoalAction = async (goalId) => {
-    setShowGoalActions(false);
-    
-    const goal = goalActions.find(g => g.id === goalId);
-    const label = goal?.label || goalId;
-    
-    setMessages(prev => [...prev, { role: 'user', content: label }]);
+  const simulateApiCall = async (message) => {
     setIsTyping(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    setIsTyping(false);
-    setMessages(prev => [...prev, { 
-      role: 'assistant', 
-      content: responses[goalId] || responses.default 
-    }]);
+    try {
+      const res = await fetch('/api/chat/helper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      const data = await res.json();
+      setIsTyping(false);
+      addMessage('assistant', data.data.response);
+    } catch (error) {
+      setIsTyping(false);
+      addMessage('assistant', "I'm here to help with courses, tools, and learning paths! Ask me anything about AI Super Hub. 🚀");
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -449,31 +433,51 @@ export default function HelperChatBot() {
     }
   };
 
+  const handleQuickAction = (actionId) => {
+    const response = responses[actionId];
+    if (response) {
+      setHasInteracted(true);
+      addMessage('user', quickActions.find(a => a.id === actionId)?.label || actionId);
+      simulateTyping(response);
+      
+      if (actionId === 'learning-path') {
+        setTimeout(() => setShowGoalActions(true), 1200);
+      }
+    }
+  };
+
+  const handleGoalAction = (goalId) => {
+    const response = responses[goalId];
+    if (response) {
+      addMessage('user', goalActions.find(g => g.id === goalId)?.label || goalId);
+      simulateTyping(response);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setInput(suggestion);
+    setTimeout(() => handleSend(), 100);
+  };
+
   const resetChat = () => {
-    setMessages([{ role: 'assistant', content: responses.greeting }]);
+    setMessages([
+      { role: 'assistant', content: responses.greeting.text, suggestions: responses.greeting.suggestions }
+    ]);
+    setHasInteracted(false);
     setShowQuickActions(true);
     setShowGoalActions(false);
-    setHasInteracted(false);
   };
 
-  // Render markdown-like formatting
-  const formatMessage = (text) => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/•/g, '•')
-      .split('\n')
-      .map((line, i) => (
-        <span key={i}>
-          <span dangerouslySetInnerHTML={{ __html: line }} />
-          {i < text.split('\n').length - 1 && <br />}
-        </span>
-      ));
-  };
+  // Theme-aware colors
+  const bgColor = isDark ? '#0a0a0a' : '#ffffff';
+  const surfaceColor = isDark ? '#111' : '#f5f5f5';
+  const borderColor = isDark ? '#1a1a1a' : '#e5e5e5';
+  const textColor = isDark ? '#e5e5e5' : '#0a0a0a';
+  const mutedTextColor = isDark ? '#888' : '#666';
 
   return (
-    <div className="fixed bottom-0 right-0 z-50 pointer-events-none">
-      {/* Floating Chat Button */}
+    <div className="fixed inset-0 pointer-events-none z-30">
+      {/* Floating Button */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -483,7 +487,7 @@ export default function HelperChatBot() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 w-16 h-16 rounded-full flex items-center justify-center shadow-2xl group pointer-events-auto"
+            className="fixed bottom-6 left-6 w-16 h-16 rounded-full flex items-center justify-center shadow-2xl group pointer-events-auto"
             style={{ 
               background: 'linear-gradient(135deg, #00E3A5 0%, #4FC3F7 100%)',
               boxShadow: '0 8px 32px rgba(0, 227, 165, 0.4)'
@@ -497,8 +501,10 @@ export default function HelperChatBot() {
             />
             
             {/* Tooltip */}
-            <span className="absolute right-full mr-3 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-              AI Learning Guide 🎯
+            <span className="absolute left-full ml-3 px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity text-sm"
+              style={{ backgroundColor: bgColor, color: textColor, border: `1px solid ${borderColor}` }}
+            >
+              Nova - Ask me! 💬
             </span>
             
             {/* Notification badge */}
@@ -513,28 +519,33 @@ export default function HelperChatBot() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={chatWindowRef}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ 
               opacity: 1, 
               y: 0, 
               scale: 1,
-              height: isMinimized ? 'auto' : '580px'
+              height: isMinimized ? 'auto' : '580px',
+              x: position.x,
+              y: position.y
             }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 w-[400px] rounded-2xl overflow-hidden flex flex-col shadow-2xl pointer-events-auto"
+            className="fixed bottom-6 left-6 w-[400px] rounded-2xl overflow-hidden flex flex-col shadow-2xl pointer-events-auto"
             style={{ 
-              backgroundColor: '#0a0a0a',
-              border: '1px solid #1a1a1a',
-              maxHeight: '90vh'
+              backgroundColor: bgColor,
+              border: `1px solid ${borderColor}`,
+              maxHeight: '90vh',
+              cursor: isDragging ? 'grabbing' : 'default'
             }}
+            onMouseDown={handleMouseDown}
           >
-            {/* Header */}
+            {/* Header - Draggable */}
             <div 
-              className="px-4 py-3 flex items-center justify-between cursor-pointer"
+              className="px-4 py-3 flex items-center justify-between cursor-move drag-handle"
               style={{ 
                 background: 'linear-gradient(135deg, rgba(0,227,165,0.15) 0%, rgba(79,195,247,0.15) 100%)',
-                borderBottom: '1px solid #1a1a1a'
+                borderBottom: `1px solid ${borderColor}`
               }}
               onClick={() => isMinimized && setIsMinimized(false)}
             >
@@ -546,14 +557,14 @@ export default function HelperChatBot() {
                   <GraduationCap className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                    AI Learning Guide
+                  <h3 className="font-semibold text-sm flex items-center gap-2" style={{ color: textColor }}>
+                    {BOT_NAME}
                     <Sparkles className="w-4 h-4 text-yellow-400" />
                   </h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-xs text-gray-400">
-                      Online • Here to help
+                    <span className="text-xs" style={{ color: mutedTextColor }}>
+                      Online • {BOT_TAGLINE}
                     </span>
                   </div>
                 </div>
@@ -561,20 +572,23 @@ export default function HelperChatBot() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={(e) => { e.stopPropagation(); resetChat(); }}
-                  className="p-2 rounded-lg transition-colors hover:bg-white/10 text-gray-400 hover:text-white"
+                  className="p-2 rounded-lg transition-colors hover:bg-[var(--color-surface-hover)]"
+                  style={{ color: mutedTextColor }}
                   title="Reset chat"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
-                  className="p-2 rounded-lg transition-colors hover:bg-white/10 text-gray-400 hover:text-white"
+                  className="p-2 rounded-lg transition-colors hover:bg-[var(--color-surface-hover)]"
+                  style={{ color: mutedTextColor }}
                 >
                   <Minimize2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-lg transition-colors hover:bg-white/10 text-gray-400 hover:text-white"
+                  className="p-2 rounded-lg transition-colors hover:bg-[var(--color-surface-hover)]"
+                  style={{ color: mutedTextColor }}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -609,16 +623,38 @@ export default function HelperChatBot() {
                       </div>
                       
                       {/* Message Bubble */}
-                      <div 
-                        className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                          msg.role === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'
-                        }`}
-                        style={{ 
-                          backgroundColor: msg.role === 'user' ? 'rgba(79, 195, 247, 0.15)' : '#111',
-                          color: '#e5e5e5'
-                        }}
-                      >
-                        {formatMessage(msg.content)}
+                      <div className="flex flex-col gap-2 max-w-[85%]">
+                        <div 
+                          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                            msg.role === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'
+                          }`}
+                          style={{ 
+                            backgroundColor: msg.role === 'user' ? 'rgba(79, 195, 247, 0.15)' : surfaceColor,
+                            color: textColor
+                          }}
+                        >
+                          {formatMessage(msg.content)}
+                        </div>
+                        
+                        {/* Suggestion Chips */}
+                        {msg.role === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && idx === messages.length - 1 && (
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {msg.suggestions.map((suggestion, i) => (
+                              <button
+                                key={i}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 active:scale-95"
+                                style={{ 
+                                  backgroundColor: 'rgba(0, 227, 165, 0.1)',
+                                  border: '1px solid rgba(0, 227, 165, 0.3)',
+                                  color: '#00E3A5'
+                                }}
+                              >
+                                {suggestion}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   ))}
@@ -636,10 +672,10 @@ export default function HelperChatBot() {
                       >
                         <Bot className="w-4 h-4 text-black" />
                       </div>
-                      <div className="px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1.5" style={{ backgroundColor: '#111' }}>
-                        <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <div className="px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1.5" style={{ backgroundColor: surfaceColor }}>
+                        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: mutedTextColor, animationDelay: '0ms' }} />
+                        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: mutedTextColor, animationDelay: '150ms' }} />
+                        <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: mutedTextColor, animationDelay: '300ms' }} />
                       </div>
                     </motion.div>
                   )}
@@ -650,7 +686,7 @@ export default function HelperChatBot() {
                 {/* Quick Actions */}
                 {showQuickActions && !hasInteracted && (
                   <div className="px-4 pb-2">
-                    <p className="text-xs text-gray-500 mb-2">Quick actions:</p>
+                    <p className="text-xs mb-2" style={{ color: mutedTextColor }}>Quick actions:</p>
                     <div className="flex flex-wrap gap-2">
                       {quickActions.map((action) => {
                         const Icon = action.icon;
@@ -677,7 +713,7 @@ export default function HelperChatBot() {
                 {/* Goal Actions */}
                 {showGoalActions && (
                   <div className="px-4 pb-2">
-                    <p className="text-xs text-gray-500 mb-2">Choose your goal:</p>
+                    <p className="text-xs mb-2" style={{ color: mutedTextColor }}>Choose your goal:</p>
                     <div className="grid grid-cols-2 gap-2">
                       {goalActions.map((goal) => {
                         const Icon = goal.icon;
@@ -685,7 +721,12 @@ export default function HelperChatBot() {
                           <button
                             key={goal.id}
                             onClick={() => handleGoalAction(goal.id)}
-                            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all hover:scale-105 active:scale-95 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
+                            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all hover:scale-105 active:scale-95"
+                            style={{
+                              backgroundColor: surfaceColor,
+                              color: textColor,
+                              border: `1px solid ${borderColor}`
+                            }}
                           >
                             <Icon className="w-3.5 h-3.5 text-[#00E3A5]" />
                             {goal.label}
@@ -697,8 +738,13 @@ export default function HelperChatBot() {
                 )}
 
                 {/* Input Area */}
-                <div className="p-3" style={{ borderTop: '1px solid #1a1a1a' }}>
-                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus-within:border-[#00E3A5]/50 transition-colors">
+                <div className="p-3" style={{ borderTop: `1px solid ${borderColor}` }}>
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors" 
+                    style={{ 
+                      backgroundColor: surfaceColor,
+                      border: `1px solid ${borderColor}`
+                    }}
+                  >
                     <input
                       ref={inputRef}
                       type="text"
@@ -706,7 +752,8 @@ export default function HelperChatBot() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Ask about courses, tools, learning paths..."
-                      className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
+                      className="flex-1 bg-transparent text-sm focus:outline-none"
+                      style={{ color: textColor }}
                       disabled={isTyping}
                     />
                     <button
@@ -715,7 +762,7 @@ export default function HelperChatBot() {
                       className="p-2 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:scale-110 active:scale-95"
                       style={{ 
                         background: input.trim() ? 'linear-gradient(135deg, #00E3A5 0%, #4FC3F7 100%)' : 'transparent',
-                        color: input.trim() ? '#000' : '#666'
+                        color: input.trim() ? '#000' : mutedTextColor
                       }}
                     >
                       {isTyping ? (
@@ -725,8 +772,8 @@ export default function HelperChatBot() {
                       )}
                     </button>
                   </div>
-                  <p className="text-center text-[10px] text-gray-600 mt-2">
-                    Powered by AI Super Hub • Your AI Learning Companion 🎓
+                  <p className="text-center text-[10px] mt-2" style={{ color: mutedTextColor }}>
+                    Powered by AI Super Hub • {BOT_NAME} 🎓
                   </p>
                 </div>
               </>

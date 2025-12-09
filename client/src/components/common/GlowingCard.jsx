@@ -98,7 +98,7 @@ export function GlowingBorderCard({
     <div className={`relative p-[1px] rounded-2xl overflow-hidden ${className}`} {...props}>
       {/* Animated Gradient Border */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background: 'linear-gradient(90deg, #00E3A5, #4FC3F7, #A855F7, #00E3A5)',
           backgroundSize: '300% 100%',

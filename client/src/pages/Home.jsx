@@ -11,6 +11,7 @@ import GlowingCard from '../components/common/GlowingCard';
 import TypewriterText, { GradientText, TextReveal } from '../components/common/TypewriterText';
 import Marquee from '../components/common/Marquee';
 import HelperChatBot from '../components/common/HelperChatBot';
+import PromptLibraryShowcase from '../components/PromptLibraryShowcase';
 
 // Features data
 const features = [
@@ -67,62 +68,62 @@ const toolCategories = [
   { 
     name: 'ChatGPT', 
     logo: 'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/openai.png',
-    fallbackIcon: '💬'
+    fallbackIcon: 'ðŸ’¬'
   },
   { 
     name: 'Claude', 
     logo: 'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/claude-color.png',
-    fallbackIcon: '🤖'
+    fallbackIcon: 'ðŸ¤–'
   },
   { 
     name: 'Midjourney', 
     logo: 'https://cdn.brandfetch.io/id6BaRNwLK/theme/dark/logo.png',
-    fallbackIcon: '🎨'
+    fallbackIcon: 'ðŸŽ¨'
   },
   { 
     name: 'Perplexity', 
     logo: 'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/perplexity-color.png',
-    fallbackIcon: '🔍'
+    fallbackIcon: 'ðŸ”'
   },
   { 
     name: 'Runway', 
     logo: 'https://cdn.brandfetch.io/idLvh7bwwE/theme/dark/logo.png',
-    fallbackIcon: '🎬'
+    fallbackIcon: 'ðŸŽ¬'
   },
   { 
     name: 'Synthesia', 
     logo: 'https://cdn.brandfetch.io/idiJPmcbAq/theme/dark/logo.png',
-    fallbackIcon: '🎥'
+    fallbackIcon: 'ðŸŽ¥'
   },
   { 
     name: 'Canva AI', 
     logo: 'https://cdn.brandfetch.io/id-kPzoKvH/theme/dark/logo.png',
-    fallbackIcon: '🎨'
+    fallbackIcon: 'ðŸŽ¨'
   },
   { 
     name: 'Jasper', 
     logo: 'https://cdn.brandfetch.io/idnpAKbxpj/theme/dark/logo.png',
-    fallbackIcon: '✍️'
+    fallbackIcon: 'âœï¸'
   },
   { 
     name: 'Copy.ai', 
     logo: 'https://cdn.brandfetch.io/idMzQ4z5p3/theme/dark/logo.png',
-    fallbackIcon: '📝'
+    fallbackIcon: 'ðŸ“'
   },
   { 
     name: 'Zapier', 
     logo: 'https://cdn.brandfetch.io/idSUrLOa5l/theme/dark/logo.png',
-    fallbackIcon: '⚡'
+    fallbackIcon: 'âš¡'
   },
   { 
     name: 'Replit', 
     logo: 'https://cdn.brandfetch.io/idq0GfGJ_w/theme/dark/logo.png',
-    fallbackIcon: '💻'
+    fallbackIcon: 'ðŸ’»'
   },
   { 
     name: 'Descript', 
     logo: 'https://cdn.brandfetch.io/idqR0Bsrge/theme/dark/logo.png',
-    fallbackIcon: '🎵'
+    fallbackIcon: 'ðŸŽµ'
   },
 ];
 
@@ -195,7 +196,7 @@ export default function Home() {
             className="text-lg max-w-2xl mx-auto mb-10"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            70+ curated tools, expert courses, and AI assistants — all in one powerful platform.
+            70+ curated tools, expert courses, and AI assistants â€” all in one powerful platform.
           </motion.p>
 
           {/* CTAs */}
@@ -360,7 +361,7 @@ export default function Home() {
                     
                     {/* Top Gradient Line - Always Visible */}
                     <div 
-                      className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+                      className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl pointer-events-none"
                       style={{ 
                         background: `linear-gradient(90deg, ${feature.color}, ${feature.colorEnd})`,
                         opacity: 0.7,
@@ -369,7 +370,7 @@ export default function Home() {
 
                     {/* Corner Glow Accents */}
                     <div 
-                      className="absolute -top-20 -right-20 w-40 h-40 rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-500"
+                      className="absolute -top-20 -right-20 w-40 h-40 rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"
                       style={{ 
                         background: `radial-gradient(circle, ${feature.color}60, transparent 70%)`,
                         filter: 'blur(20px)',
@@ -451,6 +452,10 @@ export default function Home() {
           })}
         </div>
       </section>
+
+      {/* ==================== PROMPT LIBRARY SHOWCASE ==================== */}
+      <PromptLibraryShowcase />
+
 
       {/* ==================== WHY CHOOSE US SECTION ==================== */}
       <section className="container-custom py-24">
@@ -573,13 +578,13 @@ export default function Home() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Link to="/register">
               <Button size="xl" className="min-w-[280px] btn-glow animate-pulse-glow">
-                Get Started — It is Free
+                Get Started â€” It is Free
                 <Sparkles className="w-5 h-5" />
               </Button>
             </Link>
           </motion.div>
           <p className="mt-6 text-sm" style={{ color: 'var(--color-text-muted)' }}>
-            No credit card required • Free forever plan available
+            No credit card required â€¢ Free forever plan available
           </p>
         </motion.div>
       </section>

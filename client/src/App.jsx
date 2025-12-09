@@ -10,6 +10,7 @@ import AdminLayout from './components/layout/AdminLayout';
 
 // Components
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ScrollToTop from './components/common/ScrollToTop';
 
 // Pages
 import Home from './pages/Home';
@@ -26,14 +27,21 @@ import Chat from './pages/Chat';
 import Tools from './pages/Tools';
 import Courses from './pages/Courses';
 import CourseDetail from './pages/CourseDetail';
+import PromptLibrary from './pages/PromptLibrary';
+import About from './pages/About';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import Support from './pages/Support';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminTools from './pages/admin/AdminTools';
 import AdminCourses from './pages/admin/AdminCourses';
+import AdminSupport from './pages/admin/AdminSupport';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminLessons from './pages/admin/AdminLessons';
 import AdminQuiz from './pages/admin/AdminQuiz';
+import AdminPrompts from './pages/admin/AdminPrompts';
 
 const toastOptions = {
   duration: 4000,
@@ -57,6 +65,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
+          <ScrollToTop />
           <Routes>
             {/* Auth Routes */}
             <Route element={<AuthLayout />}>
@@ -90,6 +99,8 @@ function App() {
               <Route path="courses" element={<AdminCourses />} />
               <Route path="courses/:courseId/lessons" element={<AdminLessons />} />
               <Route path="courses/:courseId/quiz" element={<AdminQuiz />} />
+              <Route path="prompts" element={<AdminPrompts />} />
+              <Route path="support" element={<AdminSupport />} />
             </Route>
 
             {/* Main Layout Routes */}
@@ -98,6 +109,11 @@ function App() {
               <Route path="/tools" element={<Tools />} />
               <Route path="/courses" element={<Courses />} />
               <Route path="/courses/:id" element={<CourseDetail />} />
+              <Route path="/prompts" element={<PromptLibrary />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/support" element={<Support />} />
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={
