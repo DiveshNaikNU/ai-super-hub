@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  HelpCircle, MessageCircle, Mail, Book,
-  Clock, CheckCircle, Send, ExternalLink
+  HelpCircle, MessageCircle, Mail, Book, Search,
+  Phone, Clock, CheckCircle, Send, ExternalLink
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
-import api from '../services/api';
 import toast from 'react-hot-toast';
 
 export default function Support() {
@@ -23,15 +22,16 @@ export default function Support() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    try {
-      await api.post('/support', formData);
-      toast.success('Support request sent! We\'ll respond within 24 hours.');
+    // For now, just send an email (you can add backend endpoint later)
+    const mailtoLink = `mailto:support@aisuperhub.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nCategory: ${formData.category}\n\nMessage:\n${formData.message}`)}`;
+    
+    window.location.href = mailtoLink;
+    
+    setTimeout(() => {
+      toast.success('Opening your email client...');
       setFormData({ name: '', email: '', subject: '', message: '', category: 'general' });
-    } catch (error) {
-      toast.error('Failed to send message. Please try emailing support@aisuperhub.com');
-    } finally {
       setIsSubmitting(false);
-    }
+    }, 1000);
   };
 
   const faqs = [
@@ -65,7 +65,7 @@ export default function Support() {
     {
       icon: MessageCircle,
       title: 'AI Chat Support',
-      description: 'Chat with Nova for instant help',
+      description: 'Get instant AI-powered assistance',
       action: 'Open Chat',
       href: '/chat',
       color: '#00E3A5',
@@ -85,9 +85,10 @@ export default function Support() {
       icon: Book,
       title: 'Documentation',
       description: 'Browse our help articles',
-      action: 'Coming Soon',
+      action: 'View Docs',
+      href: '/docs',
       color: '#A855F7',
-      available: false
+      available: true
     },
   ];
 
@@ -169,19 +170,16 @@ export default function Support() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Form - Saves to Database */}
+          {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
             <div className="card">
-              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text)' }}>
+              <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--color-text)' }}>
                 Send Us a Message
               </h2>
-              <p className="text-sm mb-6" style={{ color: 'var(--color-text-secondary)' }}>
-                Messages are saved and admins will respond within 24 hours
-              </p>
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -280,8 +278,12 @@ export default function Support() {
 
                 <Button type="submit" className="w-full" isLoading={isSubmitting}>
                   <Send className="w-4 h-4 mr-2" />
-                  Send Message
+                  Send via Email
                 </Button>
+                
+                <p className="text-xs text-center" style={{ color: 'var(--color-text-muted)' }}>
+                  This will open your default email client
+                </p>
               </form>
             </div>
           </motion.div>
@@ -329,9 +331,9 @@ export default function Support() {
                 </h3>
               </div>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                • Support Form: Within 24 hours<br/>
+                • Email: Within 24 hours<br/>
                 • AI Chat: Instant responses<br/>
-                • Email: support@aisuperhub.com
+                • Complex Issues: 2-3 business days
               </p>
             </div>
           </motion.div>

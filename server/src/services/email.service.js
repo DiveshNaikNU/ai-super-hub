@@ -470,6 +470,117 @@ const sendPasswordResetEmail = async ({ to, name, resetToken }) => {
   }
 };
 
+/**
+ * Send support message resolved notification
+ * @param {Object} options - Email options
+ * @param {string} options.to - User's email
+ * @param {string} options.name - User's name
+ * @param {string} options.subject - Original support subject
+ * @param {string} options.adminNotes - Admin's resolution notes (optional)
+ * @returns {Promise<boolean>} Success status
+ */
+const sendSupportResolvedEmail = async ({ to, name, subject, adminNotes }) => {
+  const msg = {
+    to,
+    from: {
+      email: SENDER_EMAIL,
+      name: SENDER_NAME
+    },
+    subject: `Support Request Resolved: ${subject}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0D0D0D;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="color: #00E3A5; font-size: 28px; margin: 0;">
+              ✅ AI Super Hub
+            </h1>
+          </div>
+          
+          <!-- Main Card -->
+          <div style="background-color: #161616; border-radius: 16px; padding: 40px; border: 1px solid #262626;">
+            <h2 style="color: #FFFFFF; font-size: 24px; margin: 0 0 16px 0;">
+              Your Support Request Has Been Resolved
+            </h2>
+            
+            <p style="color: #A0A0A0; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
+              Hi <strong style="color: #FFFFFF;">${name}</strong>,
+            </p>
+            
+            <p style="color: #A0A0A0; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+              Good news! Your support request has been resolved by our team.
+            </p>
+            
+            <!-- Subject Box -->
+            <div style="background-color: #0D0D0D; border-left: 4px solid #00E3A5; padding: 16px; margin: 24px 0; border-radius: 8px;">
+              <p style="color: #888; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase;">
+                Subject
+              </p>
+              <p style="color: #FFFFFF; font-size: 16px; margin: 0;">
+                ${subject}
+              </p>
+            </div>
+            
+            ${adminNotes ? `
+            <!-- Admin Notes -->
+            <div style="background-color: #0D0D0D; padding: 20px; margin: 24px 0; border-radius: 8px;">
+              <p style="color: #888; font-size: 12px; margin: 0 0 12px 0; text-transform: uppercase;">
+                Resolution Notes
+              </p>
+              <p style="color: #E5E5E5; font-size: 14px; line-height: 1.6; margin: 0;">
+                ${adminNotes}
+              </p>
+            </div>
+            ` : ''}
+            
+            <p style="color: #A0A0A0; font-size: 16px; line-height: 1.6; margin: 24px 0;">
+              If you have any further questions, feel free to contact us anytime.
+            </p>
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${CLIENT_URL}/support" 
+                 style="display: inline-block; background: linear-gradient(135deg, #00E3A5 0%, #4FC3F7 100%); color: #000000; padding: 14px 32px; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px;">
+                Visit Support Center
+              </a>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="text-align: center; margin-top: 32px; color: #666; font-size: 14px;">
+            <p style="margin: 8px 0;">AI Super Hub - Your AI Learning Platform</p>
+            <p style="margin: 8px 0;">
+              <a href="${CLIENT_URL}/support" style="color: #00E3A5; text-decoration: none;">Support</a> •
+              <a href="${CLIENT_URL}/privacy" style="color: #00E3A5; text-decoration: none;">Privacy</a>
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    await sgMail.send(msg);
+    logger.info('Support resolved email sent', { to });
+    return true;
+  } catch (error) {
+    logger.error('Failed to send support resolved email', { 
+      to, 
+      error: error.message,
+      code: error.code 
+    });
+    return false;
+  }
+};
+
+
 module.exports = {
   generateToken,
   generateOTP,

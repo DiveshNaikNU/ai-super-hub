@@ -196,7 +196,7 @@ export default function Home() {
             className="text-lg max-w-2xl mx-auto mb-10"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            70+ curated tools, expert courses, and AI assistants â€” all in one powerful platform.
+            70+ curated tools, expert courses, and AI assistants - all in one powerful platform.
           </motion.p>
 
           {/* CTAs */}
@@ -578,13 +578,13 @@ export default function Home() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Link to="/register">
               <Button size="xl" className="min-w-[280px] btn-glow animate-pulse-glow">
-                Get Started â€” It is Free
+                Get Started - It's Free
                 <Sparkles className="w-5 h-5" />
               </Button>
             </Link>
           </motion.div>
           <p className="mt-6 text-sm" style={{ color: 'var(--color-text-muted)' }}>
-            No credit card required â€¢ Free forever plan available
+            No credit card required • Free forever plan available
           </p>
         </motion.div>
       </section>

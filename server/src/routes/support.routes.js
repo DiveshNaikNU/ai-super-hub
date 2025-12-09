@@ -8,6 +8,8 @@ const router = express.Router();
 const SupportMessage = require('../models/SupportMessage');
 const { protect, adminOnly } = require('../middlewares/auth.middleware');
 const { catchAsync } = require('../middlewares/error.middleware');
+const emailService = require('../services/email.service');
+const logger = require('../utils/logger');
 
 /**
  * @swagger
@@ -48,17 +50,6 @@ const { catchAsync } = require('../middlewares/error.middleware');
  *     responses:
  *       201:
  *         description: Support message submitted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
  *       400:
  *         description: Validation error
  */
@@ -74,9 +65,11 @@ router.post('/', catchAsync(async (req, res) => {
     userId: req.user?._id || null
   });
 
+  logger.info('Support message created', { email, subject });
+
   res.status(201).json({
     success: true,
-    message: 'Support message submitted successfully',
+    message: 'Support message submitted successfully. We\'ll respond within 24 hours.',
     data: { supportMessage }
   });
 }));
@@ -109,20 +102,6 @@ router.post('/', catchAsync(async (req, res) => {
  *     responses:
  *       200:
  *         description: Support messages retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: object
- *                   properties:
- *                     messages:
- *                       type: array
- *                     pagination:
- *                       type: object
  *       403:
  *         description: Admin access required
  */
@@ -160,6 +139,7 @@ router.get('/', protect, adminOnly, catchAsync(async (req, res) => {
  *   put:
  *     summary: Update support message status (Admin only)
  *     tags: [Support]
+ *     description: Update status and optionally send email notification to user when resolved
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -182,9 +162,10 @@ router.get('/', protect, adminOnly, catchAsync(async (req, res) => {
  *                 enum: [new, in-progress, resolved, closed]
  *               adminNotes:
  *                 type: string
+ *                 description: Optional notes about the resolution
  *     responses:
  *       200:
- *         description: Status updated successfully
+ *         description: Status updated successfully (email sent if resolved)
  *       404:
  *         description: Message not found
  */
@@ -209,9 +190,27 @@ router.put('/:id/status', protect, adminOnly, catchAsync(async (req, res) => {
     });
   }
 
+  // Send email notification when resolved
+  if (status === 'resolved') {
+    try {
+      await emailService.sendSupportResolvedEmail({
+        to: message.email,
+        name: message.name,
+        subject: message.subject,
+        adminNotes: adminNotes || 'Your issue has been resolved. If you need further assistance, please let us know!'
+      });
+      logger.info('Support resolution email sent', { to: message.email });
+    } catch (emailError) {
+      // Don't fail the request if email fails
+      logger.error('Failed to send resolution email', { error: emailError.message });
+    }
+  }
+
   res.status(200).json({
     success: true,
-    message: 'Status updated successfully',
+    message: status === 'resolved' 
+      ? 'Status updated and notification email sent to user' 
+      : 'Status updated successfully',
     data: { message }
   });
 }));

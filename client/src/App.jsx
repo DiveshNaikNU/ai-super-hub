@@ -30,6 +30,8 @@ import CourseDetail from './pages/CourseDetail';
 import PromptLibrary from './pages/PromptLibrary';
 import About from './pages/About';
 import Privacy from './pages/Privacy';
+import Documentation from './pages/Documentation';
+import ApiDocs from './pages/ApiDocs';
 import Terms from './pages/Terms';
 import Support from './pages/Support';
 
@@ -114,6 +116,8 @@ function App() {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/docs" element={<Documentation />} />
+              <Route path="/api-docs" element={<ApiDocs />} />
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={
