@@ -1,3 +1,4 @@
+// server/src/routes/prompt.routes.js
 /**
  * @fileoverview Prompt routes
  * @description API endpoints for AI prompt library management
@@ -305,3 +306,4 @@ router.post('/:id/copy', promptController.trackCopy);
 router.post('/improve', protect, promptController.improvePrompt);
 
 module.exports = router;
+

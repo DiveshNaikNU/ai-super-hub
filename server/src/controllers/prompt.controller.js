@@ -1,3 +1,4 @@
+// server/src/controllers/prompt.controller.js
 /**
  * @fileoverview Prompt Controller
  * @description Handles prompt library operations including AI enhancement
@@ -155,7 +156,7 @@ exports.getFeaturedPrompts = catchAsync(async (req, res) => {
  * @route   GET /api/prompts/stats
  * @access  Public
  */
-exports.getPromptStats = catchAsync(async (req, res) => {
+exports.getStats = catchAsync(async (req, res) => {
   const stats = await Prompt.aggregate([
     { $match: { isActive: true } },
     {
@@ -324,7 +325,7 @@ exports.toggleFavorite = catchAsync(async (req, res) => {
  * @route   GET /api/prompts/favorites
  * @access  Private
  */
-exports.getFavorites = catchAsync(async (req, res) => {
+exports.getUserFavorites = catchAsync(async (req, res) => {
   const prompts = await Prompt.find({
     favoritedBy: req.user._id,
     isActive: true
@@ -342,7 +343,7 @@ exports.getFavorites = catchAsync(async (req, res) => {
  * @route   POST /api/prompts/:id/copy
  * @access  Public
  */
-exports.incrementCopy = catchAsync(async (req, res) => {
+exports.trackCopy = catchAsync(async (req, res) => {
   const prompt = await Prompt.findByIdAndUpdate(
     req.params.id,
     { $inc: { copyCount: 1 } },
