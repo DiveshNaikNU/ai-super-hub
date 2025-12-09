@@ -278,11 +278,11 @@ export default function Support() {
 
                 <Button type="submit" className="w-full" isLoading={isSubmitting}>
                   <Send className="w-4 h-4 mr-2" />
-                  Send via Email
+                  Send Message
                 </Button>
                 
                 <p className="text-xs text-center" style={{ color: 'var(--color-text-muted)' }}>
-                  This will open your default email client
+                  Your message will be sent to our support team. We'll respond within 24 hours.
                 </p>
               </form>
             </div>

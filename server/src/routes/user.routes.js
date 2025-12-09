@@ -9,6 +9,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const userController = require('../controllers/user.controller');
 const { protect, adminOnly } = require('../middlewares/auth.middleware');
 
 /**
@@ -72,6 +73,9 @@ const { protect, adminOnly } = require('../middlewares/auth.middleware');
  *       403:
  *         description: Admin access required
  */
+
+router.get('/me/stats', protect, userController.getUserStats);
+
 router.get('/', protect, adminOnly, async (req, res) => {
   try {
     const { limit = 50, page = 1, search, role } = req.query;
