@@ -4,10 +4,10 @@ import { FileCode, ExternalLink, Book, Zap } from 'lucide-react';
 
 export default function ApiDocs() {
   useEffect(() => {
-    // Redirect to Swagger UI after 2 seconds
+    // Open in new tab after 1 second
     const timer = setTimeout(() => {
-      window.location.href = 'http://localhost:5000/api/docs';
-    }, 2000);
+      window.open('http://localhost:5000/api/docs', '_blank', 'noopener,noreferrer');
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -32,14 +32,14 @@ export default function ApiDocs() {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: 'var(--color-text)' }}>
-            Redirecting to{' '}
+            Opening{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
               Swagger UI
             </span>
           </h1>
           
           <p className="text-xl mb-12" style={{ color: 'var(--color-text-secondary)' }}>
-            Opening interactive API documentation...
+            API documentation will open in a new tab...
           </p>
 
           {/* Features */}
@@ -74,7 +74,7 @@ export default function ApiDocs() {
           {/* Manual Link */}
           <div className="card">
             <p className="text-sm mb-4" style={{ color: 'var(--color-text-secondary)' }}>
-              Not redirecting automatically?
+              Not opening automatically? Click below:
             </p>
             <a
               href="http://localhost:5000/api/docs"

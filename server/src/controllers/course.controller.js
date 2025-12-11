@@ -521,6 +521,16 @@ exports.submitQuiz = catchAsync(async (req, res) => {
     enrollment.bestQuizScore = percentage;
   }
 
+  // Check if course is completed (all lessons + quiz passed with 70%+)
+  const allLessonsCompleted = enrollment.completedLessons.length === course.lessons.length;
+  const quizPassed = percentage >= 70;
+  
+  if (allLessonsCompleted && quizPassed && !enrollment.certificateIssued) {
+    enrollment.status = 'completed';
+    enrollment.certificateIssued = true;
+    enrollment.completedAt = new Date();
+  }
+
   await enrollment.save();
 
   logger.info('Quiz submitted', { 
@@ -537,7 +547,9 @@ exports.submitQuiz = catchAsync(async (req, res) => {
       totalQuestions: course.quiz.length,
       percentage,
       passed: percentage >= 70,
-      answers: processedAnswers
+      answers: processedAnswers,
+      certificateIssued: enrollment.certificateIssued,
+      courseCompleted: enrollment.status === 'completed'
     }
   });
 });
@@ -555,20 +567,28 @@ exports.getMyCourses = catchAsync(async (req, res) => {
     })
     .sort('-lastAccessedAt');
 
-  const courses = enrollments.map(enrollment => ({
-    ...enrollment.course.toObject(),
-    progress: enrollment.progress,
+  // Map enrollments with proper structure for frontend
+  const formattedEnrollments = enrollments.map(enrollment => ({
+    _id: enrollment._id,
+    course: enrollment.course,
+    progress: {
+      percentage: enrollment.progress,
+      completed: enrollment.status === 'completed'
+    },
     status: enrollment.status,
     completedLessons: enrollment.completedLessons.length,
     totalLessons: enrollment.course.lessons?.length || 0,
     lastAccessedAt: enrollment.lastAccessedAt,
-    bestQuizScore: enrollment.bestQuizScore
+    bestQuizScore: enrollment.bestQuizScore,
+    certificate: enrollment.certificateIssued,
+    certificateIssued: enrollment.certificateIssued,
+    completedAt: enrollment.completedAt
   }));
 
   res.status(200).json({
     success: true,
     message: 'Enrolled courses retrieved',
-    data: { courses }
+    data: { enrollments: formattedEnrollments }
   });
 });
 

@@ -10,7 +10,7 @@ const footerLinks = {
   ],
   resources: [
     { name: 'Documentation', href: '/docs' },
-    { name: 'API Reference', href: '/api-docs' },
+    { name: 'API Reference', href: 'http://localhost:5000/api/docs', external: true },
     { name: 'Support', href: '/support' },
   ],
   company: [
@@ -79,12 +79,23 @@ export default function Footer() {
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-text-secondary hover:text-primary transition-colors"
-                  >
-                    {link.name}
-                  </Link>
+                  {link.external ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-text-secondary hover:text-primary transition-colors"
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link
+                      to={link.href}
+                      className="text-sm text-text-secondary hover:text-primary transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

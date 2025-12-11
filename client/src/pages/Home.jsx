@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, MessageSquare, BookOpen, Wrench, Zap, 
@@ -12,6 +13,7 @@ import TypewriterText, { GradientText, TextReveal } from '../components/common/T
 import Marquee from '../components/common/Marquee';
 import HelperChatBot from '../components/common/HelperChatBot';
 import PromptLibraryShowcase from '../components/PromptLibraryShowcase';
+import { toolsAPI } from '../services/api';
 
 // Features data
 const features = [
@@ -68,66 +70,93 @@ const toolCategories = [
   { 
     name: 'ChatGPT', 
     logo: 'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/openai.png',
-    fallbackIcon: 'ðŸ’¬'
+    fallbackIcon: 'Ã°Å¸"™Â¬'
   },
   { 
     name: 'Claude', 
     logo: 'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/claude-color.png',
-    fallbackIcon: 'ðŸ¤–'
+    fallbackIcon: 'Ã°Å¸Â¤"“'
   },
   { 
     name: 'Midjourney', 
     logo: 'https://cdn.brandfetch.io/id6BaRNwLK/theme/dark/logo.png',
-    fallbackIcon: 'ðŸŽ¨'
+    fallbackIcon: 'Ã°Å¸Å½Â¨'
   },
   { 
     name: 'Perplexity', 
     logo: 'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/perplexity-color.png',
-    fallbackIcon: 'ðŸ”'
+    fallbackIcon: 'Ã°Å¸"Â'
   },
   { 
     name: 'Runway', 
     logo: 'https://cdn.brandfetch.io/idLvh7bwwE/theme/dark/logo.png',
-    fallbackIcon: 'ðŸŽ¬'
+    fallbackIcon: 'Ã°Å¸Å½Â¬'
   },
   { 
     name: 'Synthesia', 
     logo: 'https://cdn.brandfetch.io/idiJPmcbAq/theme/dark/logo.png',
-    fallbackIcon: 'ðŸŽ¥'
+    fallbackIcon: 'Ã°Å¸Å½Â¥'
   },
   { 
     name: 'Canva AI', 
     logo: 'https://cdn.brandfetch.io/id-kPzoKvH/theme/dark/logo.png',
-    fallbackIcon: 'ðŸŽ¨'
+    fallbackIcon: 'Ã°Å¸Å½Â¨'
   },
   { 
     name: 'Jasper', 
     logo: 'https://cdn.brandfetch.io/idnpAKbxpj/theme/dark/logo.png',
-    fallbackIcon: 'âœï¸'
+    fallbackIcon: 'Ã¢Å“ÂÃ¯Â¸Â'
   },
   { 
     name: 'Copy.ai', 
     logo: 'https://cdn.brandfetch.io/idMzQ4z5p3/theme/dark/logo.png',
-    fallbackIcon: 'ðŸ“'
+    fallbackIcon: 'Ã°Å¸"Â'
   },
   { 
     name: 'Zapier', 
     logo: 'https://cdn.brandfetch.io/idSUrLOa5l/theme/dark/logo.png',
-    fallbackIcon: 'âš¡'
+    fallbackIcon: 'Ã¢Å¡Â¡'
   },
   { 
     name: 'Replit', 
     logo: 'https://cdn.brandfetch.io/idq0GfGJ_w/theme/dark/logo.png',
-    fallbackIcon: 'ðŸ’»'
+    fallbackIcon: 'Ã°Å¸"™Â»'
   },
   { 
     name: 'Descript', 
     logo: 'https://cdn.brandfetch.io/idqR0Bsrge/theme/dark/logo.png',
-    fallbackIcon: 'ðŸŽµ'
+    fallbackIcon: 'Ã°Å¸Å½Âµ'
   },
 ];
 
 export default function Home() {
+  const [featuredTools, setFeaturedTools] = useState([]);
+
+  useEffect(() => {
+    // Load tools from API (featured or all if no featured tools)
+    const loadFeaturedTools = async () => {
+      try {
+        // First try to get featured tools
+        let response = await toolsAPI.getAll({ limit: 20, featured: true });
+        let tools = response.data.data.tools || [];
+        
+        // If no featured tools, get any tools
+        if (tools.length === 0) {
+          response = await toolsAPI.getAll({ limit: 20 });
+          tools = response.data.data.tools || [];
+        }
+        
+        console.log('Loaded tools for slider:', tools);
+        setFeaturedTools(tools);
+      } catch (error) {
+        console.error('Failed to load tools for slider:', error);
+        setFeaturedTools([]);
+      }
+    };
+
+    loadFeaturedTools();
+  }, []);
+
   return (
     <div className="relative overflow-hidden">
       {/* Animated Background */}
@@ -276,25 +305,32 @@ export default function Home() {
           </p>
         </div>
         <Marquee speed={40}>
-          {toolCategories.map((tool, index) => (
+          {(featuredTools.length > 0 ? featuredTools : toolCategories).map((tool, index) => (
             <div
-              key={index}
+              key={tool._id || index}
               className="flex items-center gap-3 px-6 py-3 rounded-full mx-2 hover-lift cursor-pointer"
               style={{
                 background: 'var(--color-surface)',
                 border: '1px solid var(--color-border)',
               }}
             >
-              <div className="w-6 h-6 flex items-center justify-center">
-                <img 
-                  src={tool.logo} 
-                  alt={tool.name}
-                  className="w-6 h-6 object-contain"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = `<span class="text-lg">${tool.fallbackIcon}</span>`;
-                  }}
-                />
+              <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                {tool.logo ? (
+                  <img 
+                    src={tool.logo} 
+                    alt={tool.name}
+                    className="w-6 h-6 object-contain rounded"
+                    onError={(e) => {
+                      console.log('Logo failed to load:', tool.logo);
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                      const parent = e.target.parentElement;
+                      parent.innerHTML = '<svg class="w-5 h-5" style="color: var(--color-primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>';
+                    }}
+                  />
+                ) : (
+                  <Wrench className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                )}
               </div>
               <span className="font-medium whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
                 {tool.name}

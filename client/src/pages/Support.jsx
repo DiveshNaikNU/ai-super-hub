@@ -7,6 +7,7 @@ import {
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 export default function Support() {
   const [formData, setFormData] = useState({
@@ -22,16 +23,16 @@ export default function Support() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // For now, just send an email (you can add backend endpoint later)
-    const mailtoLink = `mailto:support@aisuperhub.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nCategory: ${formData.category}\n\nMessage:\n${formData.message}`)}`;
-    
-    window.location.href = mailtoLink;
-    
-    setTimeout(() => {
-      toast.success('Opening your email client...');
+    try {
+      await api.post('/support', formData);
+      toast.success('Message sent successfully! We\'ll respond within 24 hours.');
       setFormData({ name: '', email: '', subject: '', message: '', category: 'general' });
+    } catch (error) {
+      console.error('Failed to send support message:', error);
+      toast.error(error.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const faqs = [
@@ -75,11 +76,11 @@ export default function Support() {
       icon: Mail,
       title: 'Email Support',
       description: 'support@aisuperhub.com',
-      action: 'Send Email',
-      href: 'mailto:support@aisuperhub.com',
+      action: 'Copy Email',
+      href: 'support@aisuperhub.com',
       color: '#4FC3F7',
       available: true,
-      external: true
+      copyEmail: true
     },
     {
       icon: Book,
@@ -140,7 +141,19 @@ export default function Support() {
                   {channel.description}
                 </p>
                 {channel.available ? (
-                  channel.external ? (
+                  channel.copyEmail ? (
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(channel.href);
+                        toast.success('Email copied to clipboard!');
+                      }}
+                      className="inline-flex items-center gap-2 text-sm font-medium hover:underline"
+                      style={{ color: channel.color }}
+                    >
+                      {channel.action}
+                      <Mail className="w-4 h-4" />
+                    </button>
+                  ) : channel.external ? (
                     <a 
                       href={channel.href}
                       className="inline-flex items-center gap-2 text-sm font-medium hover:underline"

@@ -65,7 +65,7 @@ const sendVerificationEmail = async ({ to, name, verificationToken }) => {
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
             <h1 style="color: #00E3A5; font-size: 28px; margin: 0;">
-              ðŸš€ AI Super Hub
+              🚀 AI Super Hub
             </h1>
           </div>
           
@@ -173,7 +173,7 @@ const sendOTPEmail = async ({ to, name, otp }) => {
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
             <h1 style="color: #00E3A5; font-size: 28px; margin: 0;">
-              ðŸš€ AI Super Hub
+              🚀 AI Super Hub
             </h1>
           </div>
           
@@ -277,7 +277,7 @@ const sendWelcomeEmail = async ({ to, name }) => {
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
             <h1 style="color: #00E3A5; font-size: 28px; margin: 0;">
-              ðŸš€ AI Super Hub
+              🚀 AI Super Hub
             </h1>
           </div>
           
@@ -391,7 +391,7 @@ const sendPasswordResetEmail = async ({ to, name, resetToken }) => {
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 40px;">
             <h1 style="color: #00E3A5; font-size: 28px; margin: 0;">
-              ðŸš€ AI Super Hub
+              🚀 AI Super Hub
             </h1>
           </div>
           

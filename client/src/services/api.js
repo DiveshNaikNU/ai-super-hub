@@ -176,3 +176,31 @@ export const uploadAPI = {
   // Delete image
   delete: (url) => api.delete('/upload/delete', { data: { url } }),
 };
+
+/**
+ * Prompts API
+ */
+export const promptsAPI = {
+  getAll: (params) => api.get('/prompts', { params }),
+  getOne: (id) => api.get(`/prompts/${id}`),
+  create: (data) => api.post('/prompts', data),
+  update: (id, data) => api.put(`/prompts/${id}`, data),
+  delete: (id) => api.delete(`/prompts/${id}`),
+  favorite: (id) => api.post(`/prompts/${id}/favorite`),
+  unfavorite: (id) => api.delete(`/prompts/${id}/favorite`),
+  getFavorites: () => api.get('/prompts/favorites/me'),
+};
+
+/**
+ * Support API
+ */
+export const supportAPI = {
+  // User endpoints
+  create: (data) => api.post('/support', data),
+  
+  // Admin endpoints
+  getAll: (params) => api.get('/support', { params }),
+  getOne: (id) => api.get(`/support/${id}`),
+  updateStatus: (id, data) => api.put(`/support/${id}/status`, data),
+  delete: (id) => api.delete(`/support/${id}`),
+};

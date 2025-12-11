@@ -237,7 +237,7 @@ export default function CourseDetail() {
             </head>
             <body>
               <div class="certificate">
-                <div class="logo">🎓 AI Super Hub</div>
+                <div class="logo">ðŸŽ“ AI Super Hub</div>
                 <div class="title">Certificate of Completion</div>
                 <p>This is to certify that</p>
                 <div class="name">${user?.name || 'Student'}</div>
@@ -395,6 +395,21 @@ export default function CourseDetail() {
                       <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>
                         {completedLessons} of {totalLessons} lessons completed
                       </p>
+
+                      {/* Course Completed Badge */}
+                      {enrollment?.certificateIssued && enrollment?.status === 'completed' && (
+                        <div className="mt-3 p-3 rounded-lg flex items-center gap-2" style={{ backgroundColor: 'rgba(0,227,165,0.1)' }}>
+                          <CheckCircle className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                          <div>
+                            <p className="text-sm font-semibold" style={{ color: 'var(--color-primary)' }}>
+                              Course Completed! 🎉
+                            </p>
+                            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                              Certificate earned on {new Date(enrollment.completedAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <Button 
@@ -437,11 +452,11 @@ export default function CourseDetail() {
                     {enrollment?.bestQuizScore >= 70 && (
                       <Button 
                         className="w-full mt-3" 
-                        variant="secondary"
+                        variant={enrollment?.certificateIssued ? 'primary' : 'secondary'}
                         onClick={() => setShowCertificate(true)}
                       >
                         <Award className="w-5 h-5" />
-                        View Certificate
+                        {enrollment?.certificateIssued ? 'View Certificate' : 'Generate Certificate'}
                       </Button>
                     )}
                   </>
