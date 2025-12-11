@@ -24,6 +24,7 @@ export default function Chat() {
   const [isSending, setIsSending] = useState(false);
   const [selectedMode, setSelectedMode] = useState('general');
   const [showModeSelector, setShowModeSelector] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false); // Mobile sidebar toggle
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
@@ -143,10 +144,26 @@ export default function Chat() {
   const ModeIcon = chatModes.find(m => m.id === selectedMode)?.icon || Zap;
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div className="h-[calc(100vh-4rem)] flex relative" style={{ backgroundColor: 'var(--color-bg)' }}>
+      {/* Mobile Overlay */}
+      {showSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <div 
-        className="w-64 border-r flex flex-col"
+        className={`
+          ${showSidebar ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
+          fixed lg:relative
+          w-64 h-full
+          border-r flex flex-col
+          transition-transform duration-300 ease-in-out
+          z-50 lg:z-auto
+        `}
         style={{ 
           backgroundColor: 'var(--color-surface)',
           borderColor: 'var(--color-border)'
@@ -203,14 +220,25 @@ export default function Chat() {
           className="h-14 border-b flex items-center justify-between px-4"
           style={{ borderColor: 'var(--color-border)' }}
         >
-          <h2 className="font-medium" style={{ color: 'var(--color-text)' }}>
-            {activeChat?.title || 'New Chat'}
-          </h2>
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setShowSidebar(true)}
+              className="lg:hidden p-2 hover:bg-[var(--color-bg)] rounded-lg transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              <MessageSquare className="w-5 h-5" />
+            </button>
+            
+            <h2 className="font-medium truncate" style={{ color: 'var(--color-text)' }}>
+              {activeChat?.title || 'New Chat'}
+            </h2>
+          </div>
           
           <div className="relative">
             <button
               onClick={() => setShowModeSelector(!showModeSelector)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg border transition-colors"
               style={{ 
                 backgroundColor: 'var(--color-surface)',
                 borderColor: 'var(--color-border)',
@@ -218,13 +246,13 @@ export default function Chat() {
               }}
             >
               <ModeIcon className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
-              <span className="text-sm">{chatModes.find(m => m.id === selectedMode)?.name}</span>
+              <span className="text-sm hidden sm:inline">{chatModes.find(m => m.id === selectedMode)?.name}</span>
               <ChevronDown className="w-4 h-4" />
             </button>
 
             {showModeSelector && (
               <div 
-                className="absolute right-0 mt-2 w-48 border rounded-xl shadow-xl z-50"
+                className="absolute right-0 mt-2 w-44 sm:w-48 border rounded-xl shadow-xl z-50"
                 style={{ 
                   backgroundColor: 'var(--color-surface)',
                   borderColor: 'var(--color-border)'
@@ -258,30 +286,30 @@ export default function Chat() {
         {/* Messages Container - Fixed scroll */}
         <div 
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto p-4"
+          className="flex-1 overflow-y-auto p-2 sm:p-4"
           style={{ scrollBehavior: 'smooth' }}
         >
           {messages.length === 0 ? (
-            <div className="h-full flex items-center justify-center">
+            <div className="h-full flex items-center justify-center px-4">
               <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] p-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] p-3 sm:p-4">
                   <Sparkles className="w-full h-full" style={{ color: 'var(--color-bg)' }} />
                 </div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
                   Start a conversation
                 </h3>
-                <p style={{ color: 'var(--color-text-secondary)' }}>Ask me anything!</p>
+                <p className="text-sm sm:text-base" style={{ color: 'var(--color-text-secondary)' }}>Ask me anything!</p>
               </div>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto space-y-4">
+            <div className="max-w-3xl mx-auto space-y-3 sm:space-y-4">
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                  className={`flex gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                 >
                   <div 
-                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{
                       background: msg.role === 'user' 
                         ? 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' 
@@ -290,19 +318,19 @@ export default function Chat() {
                     }}
                   >
                     {msg.role === 'user' 
-                      ? <User className="w-4 h-4" style={{ color: 'var(--color-bg)' }} />
-                      : <Bot className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
+                      ? <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--color-bg)' }} />
+                      : <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: 'var(--color-primary)' }} />
                     }
                   </div>
                   <div 
-                    className="max-w-[80%] px-4 py-3 rounded-2xl"
+                    className="max-w-[85%] sm:max-w-[80%] px-3 sm:px-4 py-2 sm:py-3 rounded-2xl"
                     style={{
                       backgroundColor: msg.role === 'user' ? 'var(--color-primary)' : 'var(--color-surface)',
                       color: msg.role === 'user' ? 'var(--color-bg)' : 'var(--color-text)',
                       border: msg.role === 'user' ? 'none' : '1px solid var(--color-border)'
                     }}
                   >
-                    <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+                    <p className="whitespace-pre-wrap text-sm break-words">{msg.content}</p>
                   </div>
                 </div>
               ))}
@@ -338,7 +366,7 @@ export default function Chat() {
         </div>
 
         {/* Input */}
-        <div className="border-t p-4" style={{ borderColor: 'var(--color-border)' }}>
+        <div className="border-t p-2 sm:p-4" style={{ borderColor: 'var(--color-border)' }}>
           <form onSubmit={sendMessage} className="max-w-3xl mx-auto flex gap-2">
             <input
               ref={inputRef}
@@ -347,15 +375,15 @@ export default function Chat() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
               disabled={isSending}
-              className="flex-1 px-4 py-3 rounded-xl focus:outline-none transition-colors"
+              className="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl focus:outline-none transition-colors text-sm sm:text-base"
               style={{ 
                 backgroundColor: 'var(--color-surface)',
                 border: '1px solid var(--color-border)',
                 color: 'var(--color-text)'
               }}
             />
-            <Button type="submit" disabled={!input.trim() || isSending}>
-              {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            <Button type="submit" disabled={!input.trim() || isSending} className="px-3 sm:px-4">
+              {isSending ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Send className="w-4 h-4 sm:w-5 sm:h-5" />}
             </Button>
           </form>
         </div>
